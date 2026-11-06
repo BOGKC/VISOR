@@ -1,4 +1,4 @@
-# Run it
+# Run Visor
 
 Drop `engine/`, `backend/`, `.env.example`, `.gitignore` and this file into the root of the Fonecta challenge package.
 

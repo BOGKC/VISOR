@@ -1,4 +1,4 @@
-"""Connect Suggests backend: detect → suggest → contact → decide (no login) → apply.
+"""Visor backend (Fonecta Connect Suggests challenge): detect → suggest → contact → decide (no login) → apply.
 
     pip install fastapi uvicorn
     uvicorn backend.app:app --reload --port 8000        # from the repo root
@@ -37,7 +37,7 @@ from engine import Engine  # noqa: E402
 from yext_client import YextClient, owner_response  # noqa: E402
 from messages import build_message, T  # noqa: E402
 
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:3000").rstrip("/")
+FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8000").rstrip("/")
 DB_PATH = os.environ.get("DB_PATH", os.path.join(ROOT, "backend", "connect.db"))
 HOURS_RE = re.compile(r"^(closed|\d{2}:\d{2}-\d{2}:\d{2}(,\d{2}:\d{2}-\d{2}:\d{2})*)$")
 AUTO_APPLY_MIN_CONF = 0.85
@@ -84,6 +84,7 @@ targets = defaultdict(list)
 for r in csv.DictReader(open(D("evaluation", "targets_2026.csv"), encoding="utf-8")):
     targets[r["entity_id"]].append(r)
 day_names = {(r["country"], r["date"]): r["name_local"] for r in eng.cal}
+day_names_en = {(r["country"], r["date"]): r["name_en"] for r in eng.cal}
 events = {e["@id"]: e for e in json.load(open(D("data", "local_events.json"), encoding="utf-8"))["data"]}
 splits = {r["entity_id"]: r["split"] for r in csv.DictReader(open(D("data", "splits.csv"), encoding="utf-8"))}
 
@@ -137,6 +138,8 @@ def day_name(eid: str, t: dict, lang: str) -> str:
         return nm.get(lang) or nm.get("en") or "Event"
     if t["day_key"] == "SCHOOL_BREAK":
         return SCHOOL_BREAK.get(lang, SCHOOL_BREAK["en"])
+    if lang == "en":
+        return day_names_en.get((t["country"], t["date"]), t["day_key"])
     return day_names.get((t["country"], t["date"]), t["day_key"])
 
 
@@ -155,10 +158,10 @@ def live_holiday_hours(eid: str) -> dict:
     return out
 
 
-def detect(eid: str):
+def detect(eid: str, lang_override: str | None = None):
     """Run the engine over every upcoming special day. Applies what the owner taught us (learning layer)."""
     ent = eng.ents[eid]
-    lang = contacts.get(eid, {}).get("preferred_language") or ent["meta"]["language"]
+    lang = lang_override or contacts.get(eid, {}).get("preferred_language") or ent["meta"]["language"]
     mem = memory_for(eid)
     live = live_holiday_hours(eid)
     suggestions, flags, quiet = [], [], []
@@ -204,7 +207,7 @@ def apply_hours(eid: str, day: str, hours: str):
 
 
 # ---------------------------------------------------------------- API
-app = FastAPI(title="Connect Suggests")
+app = FastAPI(title="Visor · for Fonecta Connect")
 app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], allow_headers=["*"])
 
 
@@ -236,12 +239,15 @@ def businesses(demo_only: bool = True):
 
 
 @app.post("/api/run/{eid}")
-def run(eid: str):
-    """Steps 1–3: detect, suggest, contact. Returns the message that would be sent and the no-login link."""
+def run(eid: str, lang: str | None = None):
+    """Steps 1–3: detect, suggest, contact. Returns the message that would be sent and the no-login link.
+    ?lang=en overrides the owner's language (handy for an English demo video)."""
     if eid not in eng.ents:
         raise HTTPException(404, "Unknown business")
+    if lang and lang not in T:
+        raise HTTPException(400, "lang must be fi, sv, nb or en")
     ent, c = eng.ents[eid], contacts.get(eid, {})
-    lang, sugg, flags, quiet = detect(eid)
+    lang, sugg, flags, quiet = detect(eid, lang)
     for f in flags:
         with db() as cx:
             cx.execute("INSERT INTO human_queue VALUES(?,?,?,?)", (eid, f["date"].isoformat(), str(f["evidence"]), now()))
@@ -408,3 +414,19 @@ def reset():
         for t in ("messages", "items", "memory", "permissions", "human_queue"):
             c.execute(f"DELETE FROM {t}")
     return {"reset": True}
+
+
+# ---------------------------------------------------------------- web pages (demo console + no-login decide page)
+from fastapi.responses import FileResponse  # noqa: E402
+
+STATIC = os.path.join(ROOT, "backend", "static")
+
+
+@app.get("/")
+def console_page():
+    return FileResponse(os.path.join(STATIC, "index.html"))
+
+
+@app.get("/m/{token}")
+def decide_page(token: str):
+    return FileResponse(os.path.join(STATIC, "m.html"))

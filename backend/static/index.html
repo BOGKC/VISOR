@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Visor · for Fonecta Connect</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#000;--fg:#ededed;--muted:#a1a1a1;--faint:#5c5c5c;--line:#1a1a1a;--line2:#2e2e2e;--card:#0a0a0a;
+  --sans:"Geist",ui-sans-serif,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--fg);font-family:var(--sans);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+.frame{max-width:1200px;margin:0 auto;border-left:1px solid var(--line);border-right:1px solid var(--line);position:relative}
+.label{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.75);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+nav .frame{display:flex;align-items:center;justify-content:space-between;height:60px;padding:0 24px;border:0}
+.brand{display:flex;align-items:center;gap:10px;font-weight:500;letter-spacing:-.01em}
+.mark{width:20px;height:20px;border-radius:50%;background:var(--fg);position:relative;flex:none}
+.mark:after{content:"";position:absolute;left:2px;right:2px;top:6px;height:4px;background:#000;border-radius:3px 3px 6px 6px}
+.links{display:flex;gap:28px;font-size:14px;color:var(--muted)}
+.links a:hover{color:var(--fg)}
+.right{display:flex;gap:10px;align-items:center}
+button,.btn{font-family:var(--sans);font-size:14px;font-weight:500;height:36px;padding:0 16px;border-radius:999px;cursor:pointer;
+  border:1px solid var(--line2);background:transparent;color:var(--fg);transition:all .15s;display:inline-flex;align-items:center;gap:8px;letter-spacing:-.01em}
+button:hover{border-color:#555}
+button.primary{background:var(--fg);color:#000;border-color:var(--fg)}
+button.primary:hover{background:#fff}
+button:disabled{opacity:.4;pointer-events:none}
+
+/* hero */
+.hero{display:grid;grid-template-columns:1.1fr 1fr 1fr;align-items:center;min-height:560px;padding:0 48px;border-bottom:1px solid var(--line);overflow:hidden}
+h1{font-weight:500;font-size:60px;line-height:1;letter-spacing:-.045em}
+.hero p{color:var(--muted);font-size:17px;line-height:1.5;margin:20px 0 28px;max-width:360px;letter-spacing:-.01em}
+.orbwrap{position:relative;height:460px;display:grid;place-items:center}
+.orb{position:absolute;width:520px;height:520px;border-radius:50%;
+  background:conic-gradient(from 0deg,#ffffff,#1a1a1a,#8a8a8a,#050505,#cfcfcf,#2a2a2a,#ffffff);
+  -webkit-mask-image:radial-gradient(circle closest-side,#000 10%,rgba(0,0,0,.35) 55%,transparent 100%);
+  mask-image:radial-gradient(circle closest-side,#000 10%,rgba(0,0,0,.35) 55%,transparent 100%);
+  opacity:.22;animation:spin 22s linear infinite}
+.orb2{position:absolute;width:300px;height:300px;border-radius:50%;background:radial-gradient(circle closest-side,#000 45%,transparent 100%)}
+.ring{position:absolute;width:150px;height:150px;border-radius:50%;border:1px solid rgba(237,237,237,.35);animation:ripple 4.5s cubic-bezier(.2,.6,.3,1) infinite}
+.ring:nth-of-type(5){animation-delay:1.5s}.ring:nth-of-type(6){animation-delay:3s}
+@keyframes ripple{0%{transform:scale(1);opacity:.6}100%{transform:scale(2.9);opacity:0}}
+.hero h1,.hero p,.hero .cta,.claims div{opacity:0;animation:rise .9s cubic-bezier(.2,.6,.3,1) forwards}
+.hero p{animation-delay:.15s}.hero .cta{animation-delay:.3s}
+.claims div:nth-child(1){animation-delay:.4s}.claims div:nth-child(2){animation-delay:.55s}.claims div:nth-child(3){animation-delay:.7s}.claims div:nth-child(4){animation-delay:.85s}
+@keyframes spin{to{transform:rotate(360deg)}}
+.bigmark{position:relative;width:150px;height:150px;border-radius:50%;background:var(--fg)}
+.halo{position:absolute;width:380px;height:380px;border-radius:50%;background:radial-gradient(circle closest-side,rgba(255,255,255,.16),rgba(255,255,255,0));animation:breathe 6s ease-in-out infinite}
+@keyframes breathe{50%{opacity:.45;transform:scale(1.08)}}
+.bigmark .slit{position:absolute;left:14px;right:14px;top:44px;height:30px;background:#000;border-radius:14px 14px 30px 30px;overflow:hidden}
+.bigmark .scan{position:absolute;top:0;bottom:0;width:40px;background:linear-gradient(90deg,transparent,rgba(237,237,237,.85),transparent);animation:scan 2.8s ease-in-out infinite alternate}
+@keyframes scan{from{left:-40px}to{left:100%}}
+.claims{justify-self:end;display:flex;flex-direction:column;gap:10px}
+.claims div{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--fg)}
+
+/* stats strip */
+.stats{display:grid;grid-template-columns:repeat(5,1fr);border-bottom:1px solid var(--line)}
+.stat{padding:28px 24px;border-left:1px solid var(--line)}
+.stat:first-child{border-left:0}
+.stat b{display:block;font-weight:500;font-size:28px;letter-spacing:-.03em;font-family:var(--mono)}
+.stat span{display:block;margin-top:6px}
+
+/* section */
+section{border-bottom:1px solid var(--line);padding:96px 48px}
+h2{font-weight:500;font-size:44px;line-height:1.05;letter-spacing:-.04em;max-width:640px}
+.lead{color:var(--muted);font-size:17px;line-height:1.5;margin-top:16px;max-width:560px}
+.picker{display:flex;flex-wrap:wrap;gap:8px;margin-top:40px}
+.chip{display:flex;flex-direction:column;align-items:flex-start;gap:4px;height:auto;padding:10px 14px;border-radius:10px;text-align:left}
+.chip .n{font-size:14px}
+.chip .tag{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.chip.on{border-color:var(--fg);background:#0f0f0f}
+.toolbar{display:flex;justify-content:space-between;align-items:center;margin-top:24px;gap:12px;flex-wrap:wrap}
+.seg{display:inline-flex;border:1px solid var(--line2);border-radius:999px;padding:3px}
+.seg button{border:0;height:28px;padding:0 12px;font-size:13px;color:var(--muted)}
+.seg button.on{background:#1c1c1c;color:var(--fg)}
+
+.pipe{display:grid;grid-template-columns:repeat(5,1fr);border:1px solid var(--line);border-radius:12px;margin-top:24px;overflow:hidden;background:var(--card)}
+.step{padding:20px;border-left:1px solid var(--line);position:relative;min-height:132px;transition:background .4s}
+.step:first-child{border-left:0}
+.step:before{content:"";position:absolute;left:0;right:0;top:0;height:2px;background:var(--fg);transform:scaleX(0);transform-origin:left;transition:transform .6s ease}
+.step .num{font-family:var(--mono);font-size:12px;color:var(--faint)}
+.step .nm{font-size:20px;font-weight:500;letter-spacing:-.02em;margin:10px 0 8px;color:var(--faint);transition:color .3s}
+.step .dt{font-family:var(--mono);font-size:12px;color:var(--faint);line-height:1.5}
+.step.active{background:#0d0d0d}
+.step.active:before{transform:scaleX(.5);animation:load 1.2s ease-in-out infinite alternate}
+@keyframes load{from{transform:scaleX(.15)}to{transform:scaleX(.85)}}
+.step.done:before{transform:scaleX(1)}
+.step.active .nm,.step.done .nm{color:var(--fg)}
+.step.done .dt,.step.active .dt{color:var(--muted)}
+.step .who{position:absolute;top:20px;right:20px;font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--faint)}
+
+.stage{display:grid;grid-template-columns:1fr 400px;gap:24px;margin-top:24px}
+.card{border:1px solid var(--line);border-radius:12px;background:var(--card);padding:24px}
+.card .label{display:flex;justify-content:space-between}
+.msg{margin-top:20px;background:#121212;border:1px solid var(--line2);border-radius:18px 18px 18px 4px;padding:16px 18px;font-size:15px;line-height:1.55;white-space:pre-wrap;word-break:break-word;letter-spacing:-.005em;animation:rise .5s ease both}
+.msg a{text-decoration:underline;text-underline-offset:3px}
+.meta{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap}
+.meta div{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.ev{margin-top:24px;border-top:1px solid var(--line)}
+.ev .row{display:grid;grid-template-columns:130px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline;animation:rise .4s ease both}
+.ev .row .d{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.ev .row .b{font-family:var(--mono);font-size:10px;letter-spacing:.08em;color:var(--faint);text-transform:uppercase}
+.ev .row .h{font-family:var(--mono);font-size:13px}
+.ev .row .h s{color:var(--faint)}
+.big{font-size:28px;font-weight:500;letter-spacing:-.03em;margin-top:16px;line-height:1.15}
+.phone{border:1px solid var(--line2);border-radius:40px;padding:10px;background:#050505;height:760px;position:relative;box-shadow:0 0 0 6px #0a0a0a}
+.phone iframe{width:100%;height:100%;border:0;border-radius:31px;background:#000}
+.phone .empty{height:100%;display:grid;place-items:center;text-align:center;color:var(--faint);padding:40px;font-size:14px;line-height:1.6;border-radius:31px;border:1px dashed var(--line2)}
+.notch{position:absolute;top:18px;left:50%;transform:translateX(-50%);width:90px;height:24px;border-radius:12px;background:#000;z-index:2}
+
+/* bento */
+.bento{display:grid;grid-template-columns:1.2fr 1fr;grid-template-rows:auto auto;gap:24px;margin-top:48px}
+.bento .card{min-height:240px}
+.bento .tall{grid-row:span 2}
+.mem{margin-top:16px}
+.mem .row{display:grid;grid-template-columns:110px 1fr auto;gap:12px;padding:12px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:baseline}
+.mem .row .k{font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase}
+.mem .row .v{font-family:var(--mono);font-size:12px;color:var(--muted)}
+.bars{margin-top:24px;display:flex;flex-direction:column;gap:14px}
+.bar .t{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;color:var(--muted);margin-bottom:6px}
+.bar .tr{height:6px;background:#141414;border-radius:3px;overflow:hidden}
+.bar .fi{height:100%;background:var(--fg);border-radius:3px;width:0;transition:width 1.2s ease}
+.bar.base .fi{background:#3a3a3a}
+.dot{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--fg);animation:pulse 2s infinite;vertical-align:middle}
+@keyframes pulse{0%{box-shadow:0 0 0 0 rgba(237,237,237,.5)}70%{box-shadow:0 0 0 8px rgba(237,237,237,0)}100%{box-shadow:0 0 0 0 rgba(237,237,237,0)}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+footer .frame{display:flex;justify-content:space-between;align-items:center;padding:28px 48px}
+.ext{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;margin-top:48px;overflow:hidden}
+.ext div{padding:24px;border-left:1px solid var(--line)}
+.ext div:first-child{border-left:0}
+.ext b{display:block;font-weight:500;font-size:17px;letter-spacing:-.02em;margin:10px 0 6px}
+.ext p{color:var(--muted);font-size:14px;line-height:1.5}
+</style>
+</head>
+<body>
+<nav><div class="frame">
+  <div class="brand"><div class="mark"></div>Visor<span class="label" style="margin-left:6px">for Fonecta Connect</span></div>
+  <div class="links"><a href="#loop">The loop</a><a href="#learning">Learning</a><a href="#next">What's next</a></div>
+  <div class="right"><span class="label"><span class="dot"></span>&nbsp; All systems normal</span><button id="reset">Reset demo</button></div>
+</div></nav>
+
+<div class="frame">
+  <div class="hero">
+    <div>
+      <h1>Opening hours that fix themselves.</h1>
+      <p>Visor sees wrong holiday hours before your customers do, suggests the fix with a reason, and the owner approves in one tap. No login.</p>
+      <div class="cta" style="display:flex;gap:10px"><button class="primary" onclick="document.getElementById('loop').scrollIntoView({behavior:'smooth'})">Run the loop</button><button onclick="document.getElementById('learning').scrollIntoView({behavior:'smooth'})">See the engine</button></div>
+    </div>
+    <div class="orbwrap"><div class="orb"></div><div class="orb2"></div><div class="halo"></div><div class="ring"></div><div class="ring"></div><div class="ring"></div><div class="bigmark"><div class="slit"><div class="scan"></div></div></div></div>
+    <div class="claims"><div>Detect · Suggest · Contact</div><div>Decide · Apply</div><div>No login required</div><div>Owner has the final say</div></div>
+  </div>
+
+  <div class="stats">
+    <div class="stat"><b>3,000</b><span class="label">Businesses watched</span></div>
+    <div class="stat"><b>60.7</b><span class="label">Engine score (dev)</span></div>
+    <div class="stat"><b>0</b><span class="label">Logins needed</span></div>
+    <div class="stat"><b>4</b><span class="label">Languages</span></div>
+    <div class="stat"><b>~2 min</b><span class="label">Live on Google</span></div>
+  </div>
+
+  <section id="loop">
+    <div class="label">The loop</div>
+    <h2 style="margin-top:12px">From wrong hours to fixed, without a login.</h2>
+    <p class="lead">Pick a business. Visor checks every upcoming holiday, writes the message, and waits for the owner. Tap through it on the phone like they would.</p>
+    <div class="picker" id="picker"></div>
+    <div class="toolbar">
+      <div class="seg" id="langseg"><button data-l="" class="on">Owner's language</button><button data-l="en">English</button></div>
+      <div style="display:flex;gap:8px"><button id="sim" disabled>Let the owner simulator answer</button><button id="open" disabled>Open link ↗</button></div>
+    </div>
+    <div class="pipe" id="pipe"></div>
+    <div class="stage">
+      <div class="card" id="left"><div class="label"><span>Message</span><span id="chan"></span></div><div class="big" style="color:var(--faint)">Pick a business to start.</div></div>
+      <div class="phone"><div class="notch"></div><div class="empty" id="phoneEmpty">The owner's no-login page opens here.</div><iframe id="frame" style="display:none" title="Owner decide page"></iframe></div>
+    </div>
+  </section>
+
+  <section id="learning">
+    <div class="label">Learning and reliability</div>
+    <h2 style="margin-top:12px">Every answer makes the next suggestion better.</h2>
+    <p class="lead">Edits become next year's suggestion. A "no thanks" means we stop asking. Two approvals and Visor offers to handle it automatically, and still tells the owner what changed.</p>
+    <div class="bento">
+      <div class="card tall"><div class="label"><span>What Visor learned</span><span id="memName"></span></div><div class="mem" id="mem"><p class="lead" style="font-size:14px">Decisions show up here as the owner answers.</p></div></div>
+      <div class="card"><div class="label"><span>Suggestion quality</span><span>hidden-test scorer, dev split</span></div>
+        <div class="bars">
+          <div class="bar base"><div class="t"><span>Fonecta baseline</span><span>54.5</span></div><div class="tr"><div class="fi" data-w="54.5"></div></div></div>
+          <div class="bar"><div class="t"><span>Visor engine</span><span>60.7</span></div><div class="tr"><div class="fi" data-w="60.7"></div></div></div>
+        </div>
+        <p class="lead" style="font-size:14px;margin-top:20px">Own history first, then the shopping centre, then what similar businesses actually did, measured against each owner's own hours. When the evidence is weak, it stays quiet.</p>
+      </div>
+      <div class="card"><div class="label"><span>Guardrails</span></div>
+        <p class="lead" style="font-size:14px;margin-top:16px">Closed for good? Flagged to a human, never messaged. Opted out? Nothing sent. Already right? Silence. Standing permission only auto-applies high-confidence changes, and every edit is validated before it reaches Yext.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="next">
+    <div class="label">Same loop, more jobs</div>
+    <h2 style="margin-top:12px">Suggest, approve, publish. For anything that drifts.</h2>
+    <div class="ext">
+      <div><span class="label">01</span><b>Review replies</b><p>Draft a reply to a new review. Approve, edit or skip.</p></div>
+      <div><span class="label">02</span><b>Holiday posts</b><p>"Closed on Christmas Day" post, ready to publish.</p></div>
+      <div><span class="label">03</span><b>Map edits</b><p>Google user says you moved? Confirm or reject in one tap.</p></div>
+      <div><span class="label">04</span><b>Event nights</b><p>Arena game next door: suggest staying open later.</p></div>
+    </div>
+  </section>
+</div>
+<footer><div class="frame"><div class="brand"><div class="mark"></div>Visor<span class="label" style="margin-left:6px">for Fonecta Connect</span></div><span class="label"><span class="dot"></span>&nbsp; All systems normal</span></div></footer>
+
+<script>
+const TAGS = {"FI-D0001":"Last year's hours","FI-D0004":"Shopping centre","FI-D0017":"No history","FI-D0012":"Standing permission",
+  "FI-D0011":"Closed for good","FI-D0013":"Already right","SE-D0008":"Lucia · Swedish","NO-D0009":"Norwegian","FI-D0010":"Bar · late nights",
+  "FI-D0002":"Father's Day lunch","FI-D0003":"Florist","FI-D0007":"Christmas break","FI-D0014":"School holidays","NO-D0015":"24/7 gym",
+  "FI-D0005":"Ski season","FI-D0006":"Winter closure","SE-D0016":"Changed hours"};
+const ORDER = ["FI-D0001","FI-D0017","FI-D0004","FI-D0012","FI-D0011","FI-D0013","SE-D0008","NO-D0009","FI-D0010"];
+const STEPS = [["Detect","Visor"],["Suggest","Visor"],["Contact","Visor"],["Decide","Owner"],["Apply","Visor"]];
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const hrs = h => h === "closed" ? "Closed" : String(h).split(",").map(x => x.replace("-", "–")).join(", ");
+const BASIS = {LAST_YEAR:"last year",TWO_YEARS_AGO:"2 yrs ago",SHOPPING_CENTRE:"mall hours",PEERS_LEARNED:"similar businesses",YOUR_EDIT:"your edit"};
+let lang = "", current = null, run = null;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+function pipe(states = [], details = []){
+  $("pipe").innerHTML = STEPS.map(([n, who], i) => `<div class="step ${states[i] || ""}"><span class="who">${who.toUpperCase()}</span>
+    <div class="num">0${i+1}</div><div class="nm">${n}</div><div class="dt">${details[i] || "—"}</div></div>`).join("");
+}
+pipe();
+
+async function loadBusinesses(){
+  const list = await (await fetch("/api/businesses")).json();
+  const byId = Object.fromEntries(list.map(b => [b.id, b]));
+  $("picker").innerHTML = ORDER.filter(id => byId[id]).map(id => `<button class="chip" data-id="${id}"><span class="n">${esc(byId[id].name)}</span><span class="tag">${TAGS[id] || byId[id].city}</span></button>`).join("");
+  $("picker").querySelectorAll(".chip").forEach(b => b.onclick = () => start(b.dataset.id));
+}
+
+async function start(id){
+  current = id;
+  $("picker").querySelectorAll(".chip").forEach(b => b.classList.toggle("on", b.dataset.id === id));
+  $("sim").disabled = $("open").disabled = true;
+  $("frame").style.display = "none"; $("phoneEmpty").style.display = "grid"; $("phoneEmpty").textContent = "Waiting for Visor…";
+  $("left").innerHTML = `<div class="label"><span>Message</span><span></span></div><div class="big" style="color:var(--faint)">Checking every upcoming holiday…</div>`;
+  pipe(["active"], ["scanning 7 Nov – 6 Jan"]);
+  const t0 = performance.now();
+  run = await (await fetch(`/api/run/${id}${lang ? "?lang=" + lang : ""}`, {method:"POST"})).json();
+  const ms = Math.round(performance.now() - t0);
+  const n = (run.items || []).length, q = (run.quiet || []).length, f = (run.flagged || []).length;
+  const d1 = `detect() ${ms}ms<br>${n + q + f} days checked`;
+  await sleep(500);
+  if(run.status === "FLAGGED"){ pipe(["done","done"], [d1, "FLAG → human<br>closed-for-good signals"]); return showStatus("Flagged for a human.", "Reviews and map edits say this business closed for good. Connect never sends holiday hours to a business that may be gone."); }
+  if(run.status === "ALL_GOOD"){ pipe(["done","done"], [d1, "NO_ACTION<br>all hours already right"]); return showStatus("All good. Staying quiet.", `${q} upcoming special days checked. Google already shows the right hours, so the owner isn't bothered.`); }
+  if(run.status === "OPTED_OUT"){ pipe(["done","done"], [d1, "opted out"]); return showStatus("Owner opted out.", "Nothing is sent."); }
+  const bases = [...new Set(run.items.map(i => BASIS[i.basis] || i.basis))].join(", ");
+  pipe(["done","active"], [d1, "…"]); await sleep(600);
+  pipe(["done","done","active"], [d1, `suggest() ${n} change${n>1?"s":""}<br>${bases}`, "…"]); await sleep(600);
+  const auto = run.status === "AUTO_APPLIED";
+  const d3 = `contact() ${(run.channel || "EMAIL").toLowerCase()} · ${run.message.lang}<br>${auto ? "inform only" : "1 message, no login"}`;
+  if(auto){
+    pipe(["done","done","done","done","done"], [d1, `suggest() ${n} changes<br>${bases}`, d3, "standing permission<br>no question needed", `apply() ${run.auto_applied.length} dates<br>Yext · ${run.auto_applied[0].visible_on.length} publishers`]);
+  } else {
+    pipe(["done","done","done","active"], [d1, `suggest() ${n} change${n>1?"s":""}<br>${bases}`, d3, "waiting for owner…", "—"]);
+  }
+  showMessage();
+  $("frame").src = `/m/${run.token}${lang ? "?lang=" + lang : ""}`;
+  $("frame").onload = () => { $("phoneEmpty").style.display = "none"; $("frame").style.display = "block"; };
+  $("sim").disabled = auto; $("open").disabled = false;
+  loadMemory();
+}
+
+function showStatus(title, body){
+  $("left").innerHTML = `<div class="label"><span>Result</span><span></span></div><div class="big">${esc(title)}</div><p class="lead" style="font-size:15px">${esc(body)}</p>`;
+  $("phoneEmpty").textContent = "No message sent."; loadMemory();
+}
+
+function showMessage(){
+  const m = run.message, text = esc(run.channel === "EMAIL" ? m.text : m.sms).replace(/(https?:\/\/\S+)/g, '<a href="$1" target="_blank">$1</a>');
+  $("left").innerHTML = `<div class="label"><span>Message · ${esc(run.channel || "EMAIL")}</span><span>to ${esc(run.name)}</span></div>
+    ${run.channel === "EMAIL" ? `<div class="meta"><div>Subject: ${esc(m.subject)}</div></div>` : ""}
+    <div class="msg">${text}</div>
+    <div class="ev">${run.items.map((i, k) => `<div class="row" style="animation-delay:${k*80}ms"><span class="d">${esc(i.day_name)}<br>${i.date}</span>
+      <span class="h"><s>${hrs(i.shown)}</s> → ${hrs(i.suggested)}</span><span class="b">${BASIS[i.basis] || i.basis} · ${Math.round(i.confidence*100)}%</span></div>`).join("")}</div>`;
+}
+
+async function loadMemory(){
+  if(!current) return;
+  const m = await (await fetch(`/api/memory/${current}`)).json();
+  $("memName").textContent = (run && run.name) || current;
+  const rows = m.decisions.map(d => `<div class="row"><span class="k">${d.kind}</span><span>${esc(d.day_key.replaceAll("_"," ").toLowerCase())}</span><span class="v">${d.hours ? hrs(d.hours) : "won't ask again"}</span></div>`).join("");
+  $("mem").innerHTML = `<div class="row"><span class="k">Standing</span><span>Permission for holiday hours</span><span class="v">${m.standing_permission ? '<span class="dot"></span> on' : "off"}</span></div>` +
+    (rows || `<p class="lead" style="font-size:14px">No decisions yet.</p>`);
+}
+
+window.addEventListener("message", e => {
+  if(!run) return;
+  if(e.data?.type === "connect-decided"){
+    const r = e.data.results, applied = r.filter(x => x.hours), pubs = (applied[0] || {}).visible_on || [];
+    const steps = [...document.querySelectorAll(".step")];
+    steps[3].className = "step done"; steps[3].querySelector(".dt").innerHTML = r.map(x => x.decision.toLowerCase()).join(", ");
+    if(applied.length){ steps[4].className = "step done"; steps[4].querySelector(".dt").innerHTML = `apply() ${applied.length} date${applied.length>1?"s":""}<br>Yext · ${pubs.length} publishers`; }
+    loadMemory();
+  }
+  if(e.data?.type === "connect-standing") loadMemory();
+});
+
+$("sim").onclick = async () => {
+  $("sim").disabled = true;
+  await fetch(`/api/m/${run.token}/simulate`, {method:"POST"});
+  $("frame").src = $("frame").src;
+  const steps = [...document.querySelectorAll(".step")];
+  steps[3].className = "step done"; steps[3].querySelector(".dt").innerHTML = "simulator answered";
+  steps[4].className = "step done"; steps[4].querySelector(".dt").innerHTML = "apply() → Yext";
+  loadMemory();
+};
+$("open").onclick = () => run && window.open(`/m/${run.token}${lang ? "?lang=" + lang : ""}`, "_blank");
+$("reset").onclick = async () => { await fetch("/api/reset", {method:"POST"}); current = null; run = null; pipe();
+  $("picker").querySelectorAll(".chip").forEach(b => b.classList.remove("on"));
+  $("left").innerHTML = `<div class="label"><span>Message</span><span></span></div><div class="big" style="color:var(--faint)">Pick a business to start.</div>`;
+  $("frame").style.display = "none"; $("phoneEmpty").style.display = "grid"; $("phoneEmpty").textContent = "The owner's no-login page opens here.";
+  $("mem").innerHTML = `<p class="lead" style="font-size:14px">Decisions show up here as the owner answers.</p>`; };
+$("langseg").querySelectorAll("button").forEach(b => b.onclick = () => {
+  lang = b.dataset.l; $("langseg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); if(current) start(current); });
+new IntersectionObserver(es => es.forEach(e => { if(e.isIntersecting) document.querySelectorAll(".fi").forEach(f => f.style.width = f.dataset.w + "%"); }))
+  .observe(document.querySelector(".bars"));
+loadBusinesses();
+</script>
+</body>
+</html>

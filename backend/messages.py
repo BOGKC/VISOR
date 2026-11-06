@@ -88,6 +88,9 @@ T = {
 }
 
 
+SIGN = {"en": "— Visor, for Fonecta Connect", "fi": "— Visor, Fonecta Connect", "sv": "— Visor, Hitta Connect", "nb": "— Visor, Connect"}
+
+
 def lang_of(lang: str) -> str:
     return lang if lang in T else "en"
 
@@ -104,7 +107,12 @@ def state(h: str, lang: str) -> str:
     return t["closed"] if h == "closed" else t["open"].format(h=nice(h))
 
 
+MON_EN = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"]
+
+
 def dm(d: date, lang: str) -> str:
+    if lang == "en":
+        return f"{d.day} {MON_EN[d.month - 1]}"
     return f"{d.day}/{d.month}" if lang == "sv" else f"{d.day}.{d.month}."
 
 
@@ -152,6 +160,8 @@ def build_message(lang: str, name: str, items: list[dict], link: str, auto_appli
                                           sug=i["suggested_text"]) for i in items]
         lines.append(t["cta"].format(link=link))
         subject = t["subjectN"].format(n=len(items))
+    lines.append(SIGN[lang])
     text = "\n".join(lines)
-    sms = text if len(items) == 1 else f"{t['hi'].format(name=name)} {t['many'].format(n=len(items))} {t['cta'].format(link=link)}"
+    sms = "\n".join(lines[:-1]) if len(items) == 1 else None
+    sms = sms if len(items) == 1 else f"{t['hi'].format(name=name)} {t['many'].format(n=len(items)).rstrip(':')}. {t['cta'].format(link=link)}"
     return {"lang": lang, "subject": subject, "text": text, "sms": sms}
