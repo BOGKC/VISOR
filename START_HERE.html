@@ -1,0 +1,575 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="" xml:lang="">
+<head>
+  <meta charset="utf-8" />
+  <meta name="generator" content="pandoc" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes" />
+  <title>Connect Suggests ��� START HERE</title>
+  <style>
+    html {
+      color: #1a1a1a;
+      background-color: #fdfdfd;
+    }
+    body {
+      margin: 0 auto;
+      max-width: 36em;
+      padding-left: 50px;
+      padding-right: 50px;
+      padding-top: 50px;
+      padding-bottom: 50px;
+      hyphens: auto;
+      overflow-wrap: break-word;
+      text-rendering: optimizeLegibility;
+      font-kerning: normal;
+    }
+    @media (max-width: 600px) {
+      body {
+        font-size: 0.9em;
+        padding: 12px;
+      }
+      h1 {
+        font-size: 1.8em;
+      }
+    }
+    @media print {
+      html {
+        background-color: white;
+      }
+      body {
+        background-color: transparent;
+        color: black;
+        font-size: 12pt;
+      }
+      p, h2, h3 {
+        orphans: 3;
+        widows: 3;
+      }
+      h2, h3, h4 {
+        page-break-after: avoid;
+      }
+    }
+    p {
+      margin: 1em 0;
+    }
+    a {
+      color: #1a1a1a;
+    }
+    a:visited {
+      color: #1a1a1a;
+    }
+    img {
+      max-width: 100%;
+    }
+    h1, h2, h3, h4, h5, h6 {
+      margin-top: 1.4em;
+    }
+    h5, h6 {
+      font-size: 1em;
+      font-style: italic;
+    }
+    h6 {
+      font-weight: normal;
+    }
+    ol, ul {
+      padding-left: 1.7em;
+      margin-top: 1em;
+    }
+    li > ol, li > ul {
+      margin-top: 0;
+    }
+    blockquote {
+      margin: 1em 0 1em 1.7em;
+      padding-left: 1em;
+      border-left: 2px solid #e6e6e6;
+      color: #606060;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, 'Lucida Console', monospace;
+      font-size: 85%;
+      margin: 0;
+      hyphens: manual;
+    }
+    pre {
+      margin: 1em 0;
+      overflow: auto;
+    }
+    pre code {
+      padding: 0;
+      overflow: visible;
+      overflow-wrap: normal;
+    }
+    .sourceCode {
+     background-color: transparent;
+     overflow: visible;
+    }
+    hr {
+      background-color: #1a1a1a;
+      border: none;
+      height: 1px;
+      margin: 1em 0;
+    }
+    table {
+      margin: 1em 0;
+      border-collapse: collapse;
+      width: 100%;
+      overflow-x: auto;
+      display: block;
+      font-variant-numeric: lining-nums tabular-nums;
+    }
+    table caption {
+      margin-bottom: 0.75em;
+    }
+    tbody {
+      margin-top: 0.5em;
+      border-top: 1px solid #1a1a1a;
+      border-bottom: 1px solid #1a1a1a;
+    }
+    th {
+      border-top: 1px solid #1a1a1a;
+      padding: 0.25em 0.5em 0.25em 0.5em;
+    }
+    td {
+      padding: 0.125em 0.5em 0.25em 0.5em;
+    }
+    header {
+      margin-bottom: 4em;
+      text-align: center;
+    }
+    #TOC li {
+      list-style: none;
+    }
+    #TOC ul {
+      padding-left: 1.3em;
+    }
+    #TOC > ul {
+      padding-left: 0;
+    }
+    #TOC a:not(:hover) {
+      text-decoration: none;
+    }
+    code{white-space: pre-wrap;}
+    span.smallcaps{font-variant: small-caps;}
+    div.columns{display: flex; gap: min(4vw, 1.5em);}
+    div.column{flex: auto; overflow-x: auto;}
+    div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+    /* The extra [class] is a hack that increases specificity enough to
+       override a similar rule in reveal.js */
+    ul.task-list[class]{list-style: none;}
+    ul.task-list li input[type="checkbox"] {
+      font-size: inherit;
+      width: 0.8em;
+      margin: 0 0.8em 0.2em -1.6em;
+      vertical-align: middle;
+    }
+    .display.math{display: block; text-align: center; margin: 0.5rem auto;}
+    /* CSS for syntax highlighting */
+    pre > code.sourceCode { white-space: pre; position: relative; }
+    pre > code.sourceCode > span { line-height: 1.25; }
+    pre > code.sourceCode > span:empty { height: 1.2em; }
+    .sourceCode { overflow: visible; }
+    code.sourceCode > span { color: inherit; text-decoration: inherit; }
+    div.sourceCode { margin: 1em 0; }
+    pre.sourceCode { margin: 0; }
+    @media screen {
+    div.sourceCode { overflow: auto; }
+    }
+    @media print {
+    pre > code.sourceCode { white-space: pre-wrap; }
+    pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+    }
+    pre.numberSource code
+      { counter-reset: source-line 0; }
+    pre.numberSource code > span
+      { position: relative; left: -4em; counter-increment: source-line; }
+    pre.numberSource code > span > a:first-child::before
+      { content: counter(source-line);
+        position: relative; left: -1em; text-align: right; vertical-align: baseline;
+        border: none; display: inline-block;
+        -webkit-touch-callout: none; -webkit-user-select: none;
+        -khtml-user-select: none; -moz-user-select: none;
+        -ms-user-select: none; user-select: none;
+        padding: 0 4px; width: 4em;
+        color: #aaaaaa;
+      }
+    pre.numberSource { margin-left: 3em; border-left: 1px solid #aaaaaa;  padding-left: 4px; }
+    div.sourceCode
+      {   }
+    @media screen {
+    pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+    }
+    code span.al { color: #ff0000; font-weight: bold; } /* Alert */
+    code span.an { color: #60a0b0; font-weight: bold; font-style: italic; } /* Annotation */
+    code span.at { color: #7d9029; } /* Attribute */
+    code span.bn { color: #40a070; } /* BaseN */
+    code span.bu { color: #008000; } /* BuiltIn */
+    code span.cf { color: #007020; font-weight: bold; } /* ControlFlow */
+    code span.ch { color: #4070a0; } /* Char */
+    code span.cn { color: #880000; } /* Constant */
+    code span.co { color: #60a0b0; font-style: italic; } /* Comment */
+    code span.cv { color: #60a0b0; font-weight: bold; font-style: italic; } /* CommentVar */
+    code span.do { color: #ba2121; font-style: italic; } /* Documentation */
+    code span.dt { color: #902000; } /* DataType */
+    code span.dv { color: #40a070; } /* DecVal */
+    code span.er { color: #ff0000; font-weight: bold; } /* Error */
+    code span.ex { } /* Extension */
+    code span.fl { color: #40a070; } /* Float */
+    code span.fu { color: #06287e; } /* Function */
+    code span.im { color: #008000; font-weight: bold; } /* Import */
+    code span.in { color: #60a0b0; font-weight: bold; font-style: italic; } /* Information */
+    code span.kw { color: #007020; font-weight: bold; } /* Keyword */
+    code span.op { color: #666666; } /* Operator */
+    code span.ot { color: #007020; } /* Other */
+    code span.pp { color: #bc7a00; } /* Preprocessor */
+    code span.sc { color: #4070a0; } /* SpecialChar */
+    code span.ss { color: #bb6688; } /* SpecialString */
+    code span.st { color: #4070a0; } /* String */
+    code span.va { color: #19177c; } /* Variable */
+    code span.vs { color: #4070a0; } /* VerbatimString */
+    code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; } /* Warning */
+  </style>
+  <style>body{font-family:-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;max-width:920px;margin:40px auto;padding:0 20px;color:#111;line-height:1.55}
+  h1{font-size:1.7em;border-bottom:3px solid #EF1897;padding-bottom:.3em}h2{margin-top:1.8em;font-size:1.25em}
+  code,pre{font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;background:#f6f6f7}pre{padding:12px;overflow:auto;border-radius:6px}
+  table{border-collapse:collapse;width:100%;margin:1em 0;font-size:.92em}th,td{border:1px solid #ddd;padding:6px 8px;text-align:left;vertical-align:top}th{background:#f6f6f7}</style>
+</head>
+<body>
+<header id="title-block-header">
+<h1 class="title">Connect Suggests ��� START HERE</h1>
+</header>
+<h1
+id="connect-suggests-customer-approves-nordic-opening-hours-simulator-v1.1">Connect
+Suggests – Customer Approves · Nordic opening-hours simulator v1.1</h1>
+<p>Since AI Hackathon 2026 × Fonecta · 6–8 Nov 2026, Turku. <strong>All
+data is synthetic.</strong> No real businesses, customers or Fonecta
+data.</p>
+<h2 id="try-it-in-60-seconds">Try it in 60 seconds</h2>
+<div class="sourceCode" id="cb1"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> examples/quickstart.py                       <span class="co"># full 5-step loop for Kahvila Aurora, Christmas Eve</span></span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> examples/quickstart.py SE-D0008 2026-12-24   <span class="co"># a Swedish café</span></span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> examples/quickstart.py FI-D0004 2026-12-24   <span class="co"># a store inside a shopping centre</span></span></code></pre></div>
+<p>17 demo businesses with ready storylines:
+<code>docs/DEMO_SCENARIOS.md</code>.</p>
+<p>Python 3.9+, standard library only.
+<code>pip install pandas pyarrow</code> only if you want the analytics
+file.</p>
+<h2 id="the-scenario">The scenario</h2>
+<p>Today is <strong>Friday 6 Nov 2026</strong>. You see everything
+Connect knows up to 5 Nov. Your system covers <strong>3,000 Connect
+customers</strong> in Finland, Sweden and Norway (33 business types, 28
+cities, 15 shopping centres). For every business and every special day
+from <strong>7 Nov 2026 to 6 Jan 2027</strong>, decide:</p>
+<table>
+<colgroup>
+<col style="width: 50%" />
+<col style="width: 50%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Action</th>
+<th>When</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>SUGGEST</code> + hours</td>
+<td>what Google shows will be wrong → send the owner a ready-made
+suggestion</td>
+</tr>
+<tr class="even">
+<td><code>NO_ACTION</code></td>
+<td>what Google shows is already right → stay quiet</td>
+</tr>
+<tr class="odd">
+<td><code>FLAG</code></td>
+<td>needs a human (e.g. the business looks closed for good)</td>
+</tr>
+</tbody>
+</table>
+<p>Then build the loop around it: <strong>detect → suggest → contact →
+owner approves / edits / declines (no login) → write back via the Yext
+API → confirm where the new hours show.</strong></p>
+<p><strong>Why it matters: findability.</strong> Wrong hours send
+customers to a closed door, and they also cost visibility. A business
+with missing or outdated hours can drop out of “open now” searches, and
+search demand peaks around holidays, exactly when hours are most likely
+to be wrong. Use <code>analytics_daily.parquet</code> to decide which
+suggestions matter most; the scorer reports how many at-risk search
+views your suggestions protect.</p>
+<h2 id="whats-inside">What’s inside</h2>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Folder / file</th>
+<th>What</th>
+<th>Real-world counterpart</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>data/entities.json</code></td>
+<td>3,032 businesses and shopping centres: address, category, regular
+hours, holiday hours already entered</td>
+<td>Yext Knowledge Graph <em>Entities: List</em></td>
+</tr>
+<tr class="even">
+<td><code>data/holiday_hours_history.jsonl</code></td>
+<td>Every exception hour entered since 2024, with timestamp and source
+(owner, Connect suggestion, support)</td>
+<td>Connect audit log</td>
+</tr>
+<tr class="odd">
+<td><code>data/regular_hours_history.jsonl</code></td>
+<td>Published regular-hours versions (incl. seasonal closures)</td>
+<td>Connect audit log</td>
+</tr>
+<tr class="even">
+<td><code>data/publisher_suggestions.json</code></td>
+<td>Edits proposed by Google/Apple/Bing users (“closed on 26 Dec”) –
+some right, many wrong</td>
+<td>Yext <em>Publisher Suggestions</em></td>
+</tr>
+<tr class="odd">
+<td><code>data/reviews.json</code></td>
+<td>60k reviews in fi / sv / nb / en, some mention closed doors or wrong
+hours</td>
+<td>Yext <em>Reviews: List</em></td>
+</tr>
+<tr class="even">
+<td><code>data/analytics_daily.parquet</code></td>
+<td>Daily searches, views, calls, actions per business (2024 → 3 Nov
+2026)</td>
+<td>Yext <em>Analytics Reports</em></td>
+</tr>
+<tr class="odd">
+<td><code>data/listings.json</code></td>
+<td>Which publishers each business is live on + typical update
+speed</td>
+<td>Yext <em>Listings</em></td>
+</tr>
+<tr class="even">
+<td><code>data/peer_benchmarks.csv</code></td>
+<td>What similar businesses (same type, country, city size) entered on
+each holiday – anonymised, ≥10 per cell</td>
+<td>Connect’s own data</td>
+</tr>
+<tr class="odd">
+<td><code>data/pilot_decision_log_2025.csv</code></td>
+<td>3,031 suggestions sent in a 2025 pilot and what owners did (accept /
+edit / reject / no reply, response time, channel)</td>
+<td>Learning data</td>
+</tr>
+<tr class="even">
+<td><code>data/customer_contacts.csv</code></td>
+<td>Preferred channel, language, contact window, standing permission,
+opt-outs (fake emails/phones)</td>
+<td>CRM</td>
+</tr>
+<tr class="odd">
+<td><code>data/calendar_special_days.csv</code></td>
+<td>FI/SE/NO public holidays, eves, observances, commercial days
+2024–2027</td>
+<td>Holiday APIs</td>
+</tr>
+<tr class="even">
+<td><code>data/school_breaks.csv</code>, <code>local_events.json</code>,
+<code>weather_daily.csv</code> (+10-day forecast),
+<code>weather_normals.csv</code>, <code>cities.csv</code></td>
+<td>Context signals</td>
+<td>Municipality calendars, LinkedEvents, FMI/SMHI/MET</td>
+</tr>
+<tr class="odd">
+<td><code>labels/</code></td>
+<td>Answers for <strong>dev</strong> businesses (25%) incl. full
+history</td>
+<td>–</td>
+</tr>
+<tr class="even">
+<td><code>evaluation/</code></td>
+<td>Target rows + scorer</td>
+<td>–</td>
+</tr>
+<tr class="odd">
+<td><code>mock_api/</code></td>
+<td>Local Yext API mock + owner simulator</td>
+<td>Yext sandbox</td>
+</tr>
+<tr class="even">
+<td><code>examples/</code></td>
+<td>Yext client, baseline, quickstart</td>
+<td>–</td>
+</tr>
+<tr class="odd">
+<td><code>docs/</code></td>
+<td>Data dictionary, demo storylines, live-source guide, README
+template, assumptions</td>
+<td>–</td>
+</tr>
+</tbody>
+</table>
+<h2 id="mock-yext-api">Mock Yext API</h2>
+<div class="sourceCode" id="cb2"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> mock_api/server.py          <span class="co"># http://localhost:8787</span></span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="ex">curl</span> <span class="st">&quot;http://localhost:8787/v2/accounts/me/entities/FI-D0001?api_key=demo&amp;v=20261101&quot;</span></span></code></pre></div>
+<table>
+<colgroup>
+<col style="width: 33%" />
+<col style="width: 33%" />
+<col style="width: 33%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Method</th>
+<th>Path</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>GET</td>
+<td><code>/v2/accounts/me/entities</code></td>
+<td><code>limit</code>≤50, <code>pageToken</code>,
+<code>filter={"meta.countryCode":{"$eq":"FI"}}</code></td>
+</tr>
+<tr class="even">
+<td>GET / PUT</td>
+<td><code>/v2/accounts/me/entities/{id}</code></td>
+<td>PUT <code>{"hours": {...}}</code> – validated like Yext; send the
+full hours object</td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/v2/accounts/me/reviews</code></td>
+<td><code>locationIds</code>, <code>minPublisherDate</code>,
+<code>limit</code>≤100, <code>offset</code></td>
+</tr>
+<tr class="even">
+<td>GET</td>
+<td><code>/v2/accounts/me/listings/publishersuggestions</code></td>
+<td><code>locationIds</code>, <code>statuses</code></td>
+</tr>
+<tr class="odd">
+<td>GET</td>
+<td><code>/v2/accounts/me/listings/listings</code></td>
+<td>after a PUT: <code>expectedLiveBy</code> per publisher (step 5
+confirmation)</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/v2/accounts/me/analytics/reports</code></td>
+<td><code>{"metrics":[…],"dimensions":["DAYS","ENTITY_IDS"],"filters":{…}}</code></td>
+</tr>
+<tr class="odd">
+<td>POST</td>
+<td><code>/sim/v1/owner-response</code></td>
+<td><code>{"entityId","date","proposedHours","channel"}</code> →
+ACCEPTED / EDITED / REJECTED / NO_RESPONSE (dev + demo businesses)</td>
+</tr>
+<tr class="even">
+<td>POST</td>
+<td><code>/mock/reset</code></td>
+<td>undo your writes</td>
+</tr>
+</tbody>
+</table>
+<p><strong>Switching to your Yext sandbox:</strong> code written against
+the mock works with the sandbox by changing the base URL.
+<code>examples/yext_client.py</code> reads <code>YEXT_BASE_URL</code>
+and <code>YEXT_API_KEY</code>: set
+<code>YEXT_BASE_URL=https://sbx-api.yextapis.com</code> and the key
+Fonecta gives your team. Note: the sandbox has the same API but not the
+same data – its test businesses have no exception-hour history, so use
+the mock for detection and the sandbox to demo the write path. Never
+commit keys.</p>
+<h2 id="scoring-objective-part-of-suggestion-quality">Scoring (objective
+part of “suggestion quality”)</h2>
+<div class="sourceCode" id="cb3"><pre
+class="sourceCode bash"><code class="sourceCode bash"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="ex">python</span> examples/baseline.py <span class="kw">&amp;&amp;</span> <span class="ex">python</span> evaluation/evaluate.py <span class="at">--predictions</span> outputs/baseline_predictions_2026.csv</span></code></pre></div>
+<p>Predictions: <code>entity_id,date,action,hours[,confidence]</code>,
+rows from <code>evaluation/targets_2026.csv</code>. Exact right hours
++1, close (±30 min) +0.6, wrong open/closed state −1, needless message
+−0.1…−0.5 (full rules in <code>evaluation/evaluate.py</code>).
+Organisers score the hidden <strong>test</strong> split. The score
+ignores contact preferences – your demo should still respect opt-outs
+and standing permissions.</p>
+<table>
+<colgroup>
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+<col style="width: 20%" />
+</colgroup>
+<thead>
+<tr class="header">
+<th>Baseline (copy last year → shopping centre → peers)</th>
+<th>Score</th>
+<th>Exact precision</th>
+<th>Recall</th>
+<th>Harmful</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>dev, 2026 season</td>
+<td>54.5</td>
+<td>0.90</td>
+<td>0.59</td>
+<td>224</td>
+</tr>
+<tr class="even">
+<td>dev, 2025 back-test</td>
+<td>53.2</td>
+<td>0.90</td>
+<td>0.58</td>
+<td>249</td>
+</tr>
+</tbody>
+</table>
+<p>About 40% of needed changes have no usable history – that is where
+reviews, peers, the pilot log, events and weather earn points. For the
+no-history case, start with <code>FI-D0017</code> Kahvila Kipinä (new
+customer: no exception history, no previous decisions).</p>
+<h2 id="submitting">Submitting</h2>
+<p>Submit in the Since AI app by the event deadline (see the event
+guide). Fill in <code>docs/README_TEMPLATE.md</code> as your repository
+README – it covers everything below.</p>
+<ul>
+<li><strong>Working demo</strong> of the five steps – live or as a 2–3
+minute video, plus a short pitch deck.</li>
+<li><strong>Code repository</strong> with a README: how to run it, data
+sources used, third-party libraries and licences.</li>
+<li>In the README, name the <strong>3–5 data sources that matter
+most</strong> for your solution, where Connect would get them in
+production, and what you tried that didn’t work.</li>
+<li>Include your <strong>final customer messages as text</strong>.</li>
+<li>Show how your solution behaves for a <strong>customer with no
+history / no previous actions</strong>.</li>
+<li><strong>Bonus:</strong> replace at least one dataset file with a
+live source and tell us what you learned – coverage, quality, gaps
+(<code>docs/LIVE_SOURCES.md</code>).</li>
+<li><strong>Optional, for the score:</strong>
+<code>predictions_2026.csv</code> in the repository root – same columns
+as above, one row per action for rows of
+<code>evaluation/targets_2026.csv</code> (rows you leave out count as
+<code>NO_ACTION</code>). Organisers score the <strong>test</strong>
+rows; keep your dev rows in the file and check it with
+<code>python evaluation/evaluate.py --predictions predictions_2026.csv</code>.</li>
+</ul>
+<h2 id="rules">Rules</h2>
+<ul>
+<li>Synthetic data only; do not upload anything real. Fonecta’s sandbox
+credentials stay out of repos and videos.</li>
+<li>Back-test honestly: when you simulate 6 Nov 2025, use only rows with
+timestamps before it.</li>
+<li>List third-party code/data and licences in your README. No GPL/AGPL
+components without Fonecta’s written approval.</li>
+</ul>
+<p>Licence: code MIT, data CC BY 4.0, © 2026 Since AI ry. Questions: the
+Fonecta channel on the Since AI Discord.</p>
+</body>
+</html>

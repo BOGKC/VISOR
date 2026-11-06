@@ -1,0 +1,207 @@
+[
+ {
+  "path": "LICENSE.md",
+  "bytes": 757,
+  "sha256": "d55f1f50138755c4f830796ece6cf2e9aef1e269dab27015f946481dfb974fc1"
+ },
+ {
+  "path": "START_HERE.html",
+  "bytes": 20616,
+  "sha256": "2398860a81a126f3da9bf1ffde4af69399ff538119c79e4ee0dbd7be21adb9c2"
+ },
+ {
+  "path": "START_HERE.md",
+  "bytes": 8359,
+  "sha256": "96af2a08577e8c0f1b56d0c67f367b4b6422fad70c4cd431c458a25379f4489a"
+ },
+ {
+  "path": "data/analytics_daily.parquet",
+  "bytes": 18302735,
+  "sha256": "a140886d9d55308bf37f8f2018c0e21e4cf3e64c1e8f28873056d6ed2f8b7f4a"
+ },
+ {
+  "path": "data/calendar_special_days.csv",
+  "bytes": 20548,
+  "sha256": "9c0d1882d66571b76fb2de2d43dd78da6da156601681655b885b5d2475e251db"
+ },
+ {
+  "path": "data/categories.csv",
+  "bytes": 2508,
+  "sha256": "115f63abe76d4bce5127c544170bf72b761bacf87a8e8b225246788c98beb7e3"
+ },
+ {
+  "path": "data/cities.csv",
+  "bytes": 1040,
+  "sha256": "7de263169b67724a0daf9913c1fcddb47de9c0b25cc84168a3aa5c959dbf6372"
+ },
+ {
+  "path": "data/customer_contacts.csv",
+  "bytes": 232636,
+  "sha256": "7ba38fb4542bd1cef84c380cc41b497ad64e99c3efb54b7c4d7dfdfda27e0a87"
+ },
+ {
+  "path": "data/entities.json",
+  "bytes": 5146552,
+  "sha256": "9b8646440129e1a8bced0d3f589f1b33c0dd51cdf4d49b8c6204af58cf91755c"
+ },
+ {
+  "path": "data/holiday_hours_history.jsonl",
+  "bytes": 11845854,
+  "sha256": "877869dae0a1cab4200091caf290aa7a700c350c6b2797ab949c89e1281ce420"
+ },
+ {
+  "path": "data/listings.json",
+  "bytes": 7063522,
+  "sha256": "c06bc507f700974bc798c290a7b3b2d2816047f9fa60c78b93ce43f4febddde2"
+ },
+ {
+  "path": "data/local_events.json",
+  "bytes": 1121432,
+  "sha256": "43610c1cd5b938e0374685f824fa8f7c83fdfb2f4113c4e181ba368e80aea0e2"
+ },
+ {
+  "path": "data/peer_benchmarks.csv",
+  "bytes": 473980,
+  "sha256": "1eca59a5361dc5b1619095f376583b4826885ddf3026f3a16938fd9d84f2f5fe"
+ },
+ {
+  "path": "data/pilot_decision_log_2025.csv",
+  "bytes": 509660,
+  "sha256": "cfcad33d24592145e8031f0e4c94e0aea430da1be4e6af3eafe3144d90768409"
+ },
+ {
+  "path": "data/publisher_suggestions.json",
+  "bytes": 2431467,
+  "sha256": "245aace92412c9c9f1841c32304b632919759f7ddb879e943431f7127be31a77"
+ },
+ {
+  "path": "data/regular_hours_history.jsonl",
+  "bytes": 1704976,
+  "sha256": "92f58082a946f356a1c878285e0408d7b89b363a6f9363dc61a68c4b7bd42bdd"
+ },
+ {
+  "path": "data/reviews.json",
+  "bytes": 26640393,
+  "sha256": "8813addb68964e50efe8f8d76d57d094f25dbe5b4dbfda6be3747f4943747350"
+ },
+ {
+  "path": "data/school_breaks.csv",
+  "bytes": 2076,
+  "sha256": "423eafe4aa8853a62826a1d160a5da65303d8a255a0296c3ed17368902b460b9"
+ },
+ {
+  "path": "data/splits.csv",
+  "bytes": 44755,
+  "sha256": "6329d0a3442119c6eb863114daf9771e8acceb2da06c6b6cfea9bde5e2b22c69"
+ },
+ {
+  "path": "data/weather_daily.csv",
+  "bytes": 1341091,
+  "sha256": "be200cce59b399316eb0ece85ed292911553ccc42e348d664364d11a12c628a0"
+ },
+ {
+  "path": "data/weather_normals.csv",
+  "bytes": 268190,
+  "sha256": "9b7e7e7d6ce88fcfe63740803721b9366415778a60a69f8a0f1bf8d3897cd73a"
+ },
+ {
+  "path": "docs/ASSUMPTIONS_AND_LIMITATIONS.md",
+  "bytes": 2039,
+  "sha256": "869af0a19f506dfd42d86f477f7b744290c6fb9fcaf162598557c07befdd5b87"
+ },
+ {
+  "path": "docs/DATA_DICTIONARY.md",
+  "bytes": 6267,
+  "sha256": "344e9bad62ca423eae4f9260c485fdabd2d910749e69d29224dffd454e049107"
+ },
+ {
+  "path": "docs/DEMO_SCENARIOS.md",
+  "bytes": 2006,
+  "sha256": "c65bf55762aa06abb333c122b12bcbecfd695e624a106354148a2463fb54e48b"
+ },
+ {
+  "path": "docs/LIVE_SOURCES.md",
+  "bytes": 2021,
+  "sha256": "7ba789c1091330a71b14befbeb9c3b6336b78284606f9720f31638c97d38c1ed"
+ },
+ {
+  "path": "docs/README_TEMPLATE.md",
+  "bytes": 1057,
+  "sha256": "3085efdcb2e97f0a0d410d7ac376f20b22e8e05be195d23bddc2d27ee3047c6d"
+ },
+ {
+  "path": "evaluation/evaluate.py",
+  "bytes": 8616,
+  "sha256": "4e985a5cfb764811ed13ec977b836d41dba6b2d32f0251fa58ba25bca8ae2759"
+ },
+ {
+  "path": "evaluation/targets_2025_backtest.csv",
+  "bytes": 569623,
+  "sha256": "398ea722588e818c69c2ddee877c0172592cdb4b999cbf79de1acab7d640958b"
+ },
+ {
+  "path": "evaluation/targets_2026.csv",
+  "bytes": 2169383,
+  "sha256": "edeee1ea397097d407455cd9f9a31b4bf7129d0eb01a5544846f34a79155c49e"
+ },
+ {
+  "path": "examples/baseline.py",
+  "bytes": 6968,
+  "sha256": "124297545cb5bd7ee8f3587dd651997f4fcf89176d24a982f64e288bfb33dc66"
+ },
+ {
+  "path": "examples/quickstart.py",
+  "bytes": 9054,
+  "sha256": "5fe26b2ef80ec4e7dce7748d19ad91aeb79d772e0ec569acb4d161f626e5db18"
+ },
+ {
+  "path": "examples/yext_client.py",
+  "bytes": 4977,
+  "sha256": "0d3e11367c17620d2fe38c2aba007c2b9696f4a048632110e8632bda424a4e8b"
+ },
+ {
+  "path": "labels/dev_labels_2025_backtest.csv",
+  "bytes": 905314,
+  "sha256": "c2cca19ae70d2e347ccc0d70251fdd869158de7a67d0cefde750abbe7b9494e3"
+ },
+ {
+  "path": "labels/dev_labels_2026.csv",
+  "bytes": 897221,
+  "sha256": "8f7beb1665a3f941be68a5fc5f72aefb762d81605c0e6b5142878d46a1add43e"
+ },
+ {
+  "path": "labels/dev_regular_hours_truth.csv",
+  "bytes": 435983,
+  "sha256": "b0a8a186d402c1aeeb754e0fbeedae23a54b71cc6c9dfde2872014715018c1bc"
+ },
+ {
+  "path": "labels/dev_truth_history.csv",
+  "bytes": 3157471,
+  "sha256": "317e8f9f426b2c325c484550d9c978b66968657317d5ce31776ca8d58c75fa88"
+ },
+ {
+  "path": "mock_api/hours.py",
+  "bytes": 4081,
+  "sha256": "4e23af7988020883f556e7d2f8cbfd7927adb3a672c84541b5264446fef948db"
+ },
+ {
+  "path": "mock_api/server.py",
+  "bytes": 20101,
+  "sha256": "25c73ddb2172d82231394c8f482a014a700d3d8aa5aab2221592502eb904c90a"
+ },
+ {
+  "path": "mock_api/sim_data.json",
+  "bytes": 57663,
+  "sha256": "1c3765bf05d6d63f6da5e7895bbaeeac2f203e0d887381e56f7fbdfc6d7c381c"
+ },
+ {
+  "path": "mock_api/simulator.py",
+  "bytes": 1925,
+  "sha256": "1b26ded3cfa2fd8db5bbbf14493c4e0238ef17d0194693f8491c151afbfd45ce"
+ },
+ {
+  "path": "requirements.txt",
+  "bytes": 157,
+  "sha256": "b8038ca7182ca81a5bb350187a0e94565bb24d679d8acb53d29bffcf67d4df8f"
+ }
+]

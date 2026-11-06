@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+outputs/
+mock_api/state.json
+backend/*.db
+node_modules/
+.next/
+.vercel/
