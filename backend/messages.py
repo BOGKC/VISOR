@@ -14,6 +14,7 @@ WD = {"fi": ["maanantaina", "tiistaina", "keskiviikkona", "torstaina", "perjanta
 
 T = {
     "en": {
+        "chg": "Want anything changed? (no login): {link}",
         "autoN": "As you asked, we updated {n} holiday hours automatically:",
         "hi": "Hi {name}!", "closed": "closed", "open": "open {h}",
         "LAST_YEAR": "Last year you were {last} that day, but no special hours are set for this year.",
@@ -32,6 +33,7 @@ T = {
         "done": "Done! Your new hours are being published.",
     },
     "fi": {
+        "chg": "Haluatko muuttaa jotain? (ei kirjautumista): {link}",
         "autoN": "Kuten sovittiin, päivitimme {n} poikkeusaukioloa automaattisesti:",
         "hi": "Hei {name}!", "closed": "kiinni", "open": "auki klo {h}",
         "LAST_YEAR": "Viime vuonna olitte {last}, mutta tälle vuodelle poikkeusaikoja ei ole vielä merkitty.",
@@ -50,6 +52,7 @@ T = {
         "done": "Valmis! Uudet aukioloajat julkaistaan.",
     },
     "sv": {
+        "chg": "Vill ni ändra något? (ingen inloggning): {link}",
         "autoN": "Som överenskommet uppdaterade vi {n} helgtider automatiskt:",
         "hi": "Hej {name}!", "closed": "stängt", "open": "öppet {h}",
         "LAST_YEAR": "Förra året hade ni {last}, men inga avvikande tider är inlagda i år.",
@@ -68,6 +71,7 @@ T = {
         "done": "Klart! De nya tiderna publiceras.",
     },
     "nb": {
+        "chg": "Vil dere endre noe? (ingen innlogging): {link}",
         "autoN": "Som avtalt oppdaterte vi {n} helligdagstider automatisk:",
         "hi": "Hei {name}!", "closed": "stengt", "open": "åpent {h}",
         "LAST_YEAR": "I fjor hadde dere {last}, men ingen avvikende åpningstider er lagt inn i år.",
@@ -141,13 +145,14 @@ def build_message(lang: str, name: str, items: list[dict], link: str, auto_appli
     if auto_applied and len(items) > 1:
         lines = [t["hi"].format(name=name), t["autoN"].format(n=len(items))]
         lines += [f"• {i['day_name']} {i['date_text']}: {i['suggested_text']}" for i in items]
-        lines.append(t["cta"].format(link=link))
-        return {"lang": lang, "subject": t["subjectN"].format(n=len(items)), "text": "\n".join(lines),
-                "sms": f"{lines[0]} {lines[1]} {lines[-1]}"}
+        lines.append(t["chg"].format(link=link))
+        sms = f"{lines[0]} {lines[1].rstrip(':')}. {lines[-1]}"
+        lines.append(SIGN[lang])
+        return {"lang": lang, "subject": t["subjectN"].format(n=len(items)), "text": "\n".join(lines), "sms": sms}
     if auto_applied:
         body = t["auto"].format(day=first["day_name"], dm=first["date_text"], sug=first["suggested_text"], link=link)
         return {"lang": lang, "subject": t["subject1"].format(day=first["day_name"]),
-                "text": f"{t['hi'].format(name=name)}\n{body}", "sms": body}
+                "text": f"{t['hi'].format(name=name)}\n{body}\n{SIGN[lang]}", "sms": body}
     if len(items) == 1:
         intro = (f"{t['one'].format(day=first['day_name'], wd=WD[lang][first['date'].weekday()], dm=first['date_text'])} "
                  f"{first['reason']} {t['shows'].format(shown=first['shown_text'])}")
