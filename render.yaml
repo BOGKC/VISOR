@@ -1,0 +1,18 @@
+# Render Blueprint: Dashboard → New → Blueprint → pick this repo.
+services:
+  - type: web
+    name: visor
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements-deploy.txt
+    startCommand: uvicorn backend.app:app --host 0.0.0.0 --port $PORT
+    healthCheckPath: /api/health
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.12.7
+      - key: LOW_MEMORY
+        value: "1"
+      - key: YEXT_SANDBOX_KEY
+        sync: false        # Render asks for the value; it never lives in the repo
+      - key: YEXT_SANDBOX_ENTITY_ID
+        sync: false

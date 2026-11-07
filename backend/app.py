@@ -37,7 +37,7 @@ from engine import Engine  # noqa: E402
 from yext_client import YextClient, owner_response  # noqa: E402
 from messages import build_message, T  # noqa: E402
 
-FRONTEND_URL = os.environ.get("FRONTEND_URL", "http://localhost:8000").rstrip("/")
+FRONTEND_URL = (os.environ.get("FRONTEND_URL") or os.environ.get("RENDER_EXTERNAL_URL") or "http://localhost:8000").rstrip("/")
 DB_PATH = os.environ.get("DB_PATH", os.path.join(ROOT, "backend", "connect.db"))
 HOURS_RE = re.compile(r"^(closed|\d{2}:\d{2}-\d{2}:\d{2}(,\d{2}:\d{2}-\d{2}:\d{2})*)$")
 AUTO_APPLY_MIN_CONF = 0.85
@@ -49,6 +49,8 @@ def _start_mock() -> str:
     import server  # mock_api/server.py
     server.STATE_FILE = os.path.join(tempfile.mkdtemp(), "state.json")
     server.STORE = server.Store()
+    if os.environ.get("LOW_MEMORY") == "1":       # small hosts (Render free = 512 MB): drop mock data we never read
+        server.STORE.reviews, server.STORE.suggestions = [], []
     s = socket.socket()
     s.bind(("127.0.0.1", 0))
     port = s.getsockname()[1]
@@ -111,6 +113,14 @@ def init_db():
 
 
 init_db()
+if os.environ.get("LOW_MEMORY") == "1":
+    import gc
+    import ctypes
+    gc.collect()
+    try:
+        ctypes.CDLL("libc.so.6").malloc_trim(0)   # hand freed memory back to the OS
+    except OSError:
+        pass
 now = lambda: datetime.now(timezone.utc).isoformat(timespec="seconds")  # noqa: E731
 
 

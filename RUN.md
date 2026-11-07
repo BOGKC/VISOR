@@ -23,3 +23,11 @@ Sandbox: copy `.env.example` to `.env`, fill in your key and entity ID, then
 | What it learned | `GET /api/memory/{entity_id}` |
 | Sandbox read-back | `GET /api/sandbox` |
 | Reset demo | `POST /api/reset` |
+
+## Deploy (Render, free)
+1. Push the repo to GitHub (check `git status` shows no `.env`).
+2. render.com → New → Blueprint → pick the repo. It reads `render.yaml`.
+3. Paste your Yext sandbox key and entity ID when Render asks. They stay in Render, not in the repo.
+4. Wait for the deploy (first build ~3 min, start ~30 s). Open the `onrender.com` link.
+
+Free plan sleeps after 15 min without visitors and takes ~1 min to wake up: open the link yourself before judging. Demo data resets on each restart.
