@@ -36,6 +36,7 @@ os.environ.setdefault("MOCK_QUIET", "1")
 from engine import Engine  # noqa: E402
 from yext_client import YextClient, owner_response  # noqa: E402
 from messages import build_message, T  # noqa: E402
+import live_holidays  # noqa: E402
 
 FRONTEND_URL = (os.environ.get("FRONTEND_URL") or os.environ.get("RENDER_EXTERNAL_URL") or "http://localhost:8000").rstrip("/")
 DB_PATH = os.environ.get("DB_PATH", os.path.join(ROOT, "backend", "connect.db"))
@@ -90,6 +91,22 @@ for r in csv.DictReader(open(D("evaluation", "targets_2026.csv"), encoding="utf-
 day_names = {(r["country"], r["date"]): r["name_local"] for r in eng.cal}
 day_names_en = {(r["country"], r["date"]): r["name_en"] for r in eng.cal}
 events = {e["@id"]: e for e in json.load(open(D("data", "local_events.json"), encoding="utf-8"))["data"]}
+_all_dates = sorted(r["date"] for rows in targets.values() for r in rows)
+SEASON = (_all_dates[0], _all_dates[-1])
+OFFICIAL = defaultdict(dict)          # country -> {date: english name} for official public holidays in the season
+KNOWN = defaultdict(set)              # country -> every special day in our calendar
+for r in eng.cal:
+    KNOWN[r["country"]].add(r["date"])
+    if str(r.get("official_public_holiday")) == "1" and SEASON[0] <= r["date"] <= SEASON[1]:
+        OFFICIAL[r["country"]][r["date"]] = r["name_en"]
+
+
+def live_calendar(country: str) -> dict:
+    """Bonus live data source: cross-check the season's public holidays with the Nager.Date API."""
+    return live_holidays.compare(country, SEASON[0], SEASON[1], OFFICIAL.get(country, {}), KNOWN.get(country))
+
+
+threading.Thread(target=lambda: [live_calendar(c) for c in ("FI", "SE", "NO")], daemon=True).start()  # warm cache
 splits = {r["entity_id"]: r["split"] for r in csv.DictReader(open(D("data", "splits.csv"), encoding="utf-8"))}
 
 
@@ -268,7 +285,12 @@ def run(eid: str, lang: str | None = None):
     for f in flags:
         with db() as cx:
             cx.execute("INSERT INTO human_queue VALUES(?,?,?,?)", (eid, f["date"].isoformat(), str(f["evidence"]), now()))
-    base = {"entity_id": eid, "name": ent["name"], "flagged": [{"date": f["date"].isoformat(), "reason": f["evidence"]}
+    lc = live_calendar(ent["meta"]["countryCode"])
+    for s in sugg + flags:
+        s["live_confirmed"] = s["date"].isoformat() in lc["confirmed"]
+    base = {"live_calendar": {k: lc[k] for k in ("country", "source", "provider", "checked")} |
+            {"confirmed": len(lc["confirmed"]), "new_in_live": lc["new_in_live"]},
+            "entity_id": eid, "name": ent["name"], "flagged": [{"date": f["date"].isoformat(), "reason": f["evidence"]}
                                                                 for f in flags], "quiet": quiet}
     if flags and not sugg:
         return {**base, "status": "FLAGGED", "note": "Sent to a human: signals say the business may have closed for good."}
@@ -308,7 +330,7 @@ def run(eid: str, lang: str | None = None):
 
 def _item_out(s):
     return {k: (v.isoformat() if isinstance(v, date) else v) for k, v in s.items()
-            if k in ("date", "day_key", "day_name", "shown", "suggested", "basis", "confidence", "reason",
+            if k in ("date", "day_key", "day_name", "shown", "suggested", "basis", "confidence", "reason", "live_confirmed",
                      "shown_text", "suggested_text", "date_text")}
 
 
@@ -496,7 +518,21 @@ def overview():
     feed.sort(key=lambda x: x["at"], reverse=True)
     for x in feed:
         x["name"] = eng.ents[x["entity_id"]]["name"] if x["entity_id"] in eng.ents else x["entity_id"]
-    return {**_overview_static(), "feed": feed[:8]}
+    cal = {c: live_calendar(c) for c in ("FI", "SE", "NO")}
+    calendar = {"provider": "Nager.Date", "source": "live" if all(v["source"] == "live" for v in cal.values()) else
+                ("partial" if any(v["source"] == "live" for v in cal.values()) else "fallback"),
+                "countries": {c: {"source": v["source"], "confirmed": len(v["confirmed"]), "checked": v["checked"],
+                                  "new_in_live": v["new_in_live"], "missing_live": v["missing_live"]} for c, v in cal.items()}}
+    return {**_overview_static(), "feed": feed[:8], "calendar": calendar}
+
+
+@app.get("/api/live/holidays/{country}")
+def live_holidays_for(country: str):
+    """The live check itself: our calendar vs Nager.Date for this season."""
+    country = country.upper()
+    if country not in ("FI", "SE", "NO"):
+        raise HTTPException(400, "country must be FI, SE or NO")
+    return {"season": {"from": SEASON[0], "to": SEASON[1]}, **live_calendar(country)}
 
 
 @app.get("/api/memory/{eid}")

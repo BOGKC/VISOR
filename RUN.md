@@ -31,3 +31,10 @@ Sandbox: copy `.env.example` to `.env`, fill in your key and entity ID, then
 4. Wait for the deploy (first build ~3 min, start ~30 s). Open the `onrender.com` link.
 
 Free plan sleeps after 15 min without visitors and takes ~1 min to wake up: open the link yourself before judging. Demo data resets on each restart.
+
+## Live data source: holiday calendar
+
+Visor checks the season's public holidays against the free Nager.Date API (`https://date.nager.at/api/v3`, no API key needed, so there's nothing to leak). It's cached for 12 hours. If the API can't be reached, Visor keeps working on the bundled `calendar_special_days.csv` and the console says "bundled calendar".
+
+- `GET /api/live/holidays/FI` (or SE, NO): our calendar vs the live one (confirmed, missing, new holidays)
+- The Detect step shows "holidays live ✓ 6/6", each suggestion gets a LIVE ✓ tag, and the dashboard shows the check per country.
