@@ -440,3 +440,14 @@ def console_page():
 @app.get("/m/{token}")
 def decide_page(token: str):
     return FileResponse(os.path.join(STATIC, "m.html"))
+
+
+BRAND = os.path.join(ROOT, "brand")
+
+
+@app.get("/brand/{name}")
+def brand_file(name: str):
+    path = os.path.join(BRAND, os.path.basename(name))
+    if not os.path.isfile(path):
+        raise HTTPException(404, "Not found")
+    return FileResponse(path)
