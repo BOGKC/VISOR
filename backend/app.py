@@ -229,7 +229,8 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"], allow_methods=["*"], all
 
 @app.get("/api/health")
 def health():
-    return {"ok": True, "mock": YEXT_BASE, "sandbox": bool(sbx), "sandbox_mirrors": SANDBOX_MIRRORS if sbx else None}
+    return {"ok": True, "mock": YEXT_BASE, "sandbox": bool(sbx), "sandbox_mirrors": SANDBOX_MIRRORS if sbx else None,
+            "default_view": "clean" if os.environ.get("DEFAULT_VIEW", "demo").lower() == "clean" else "demo"}
 
 
 @app.get("/api/sandbox")

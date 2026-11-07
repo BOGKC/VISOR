@@ -251,13 +251,21 @@ section{position:relative;overflow:hidden}
 .chip.start:not(.on){animation:nudge 2.4s ease-in-out infinite}
 @keyframes nudge{0%,100%{box-shadow:0 0 0 0 rgba(237,237,237,0)}50%{box-shadow:0 0 0 4px rgba(237,237,237,.08)}}
 @media (max-width:900px){.wm{font-size:96px;right:16px;top:24px}}
+
+/* demo / clean view */
+.viewseg button{height:26px;padding:0 11px;font-size:12px}
+body.clean .demo-only{display:none!important}
+body.clean .chip.start:after{display:none}
+body.clean .chip.start{animation:none;border-color:var(--line2)}
+.viewnote{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--fg);color:#000;font-size:13px;padding:10px 16px;border-radius:999px;opacity:0;transition:all .3s;z-index:20;pointer-events:none}
+.viewnote.on{opacity:1;transform:translate(-50%,0)}
 </style>
 </head>
 <body>
 <nav><div class="frame">
   <div class="brand"><svg width="22" height="22" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" role="img" aria-label="Visor"> <defs><mask id="hlc1"><rect width="100" height="100" fill="#fff"/><circle cx="52.6" cy="43.4" r="2.3" fill="#000"/></mask></defs> <g stroke="currentColor" stroke-linejoin="round"> <path stroke-width="7" d="M50 10 C66 10 79 13 85 18 C87 42 79 71 50 90 C21 71 13 42 15 18 C21 13 34 10 50 10 Z"/> <path stroke-width="5" d="M29 46 Q50 29 71 46 Q50 63 29 46 Z"/> </g> <circle cx="50" cy="46" r="7.5" fill="currentColor" mask="url(#hlc1)"/> </svg>Visor<span class="label" style="margin-left:6px">for Fonecta Connect</span></div>
   <div class="links" id="links"><a href="#problem" data-s="problem"><span>01</span>Problem</a><a href="#overview" data-s="overview"><span>02</span>Overview</a><a href="#loop" data-s="loop"><span>03</span>Live demo</a><a href="#hood" data-s="hood"><span>04</span>Under the hood</a><a href="#learning" data-s="learning"><span>05</span>Learning</a><a href="#next" data-s="next"><span>06</span>Next</a></div>
-  <div class="right"><span class="label"><span class="dot"></span>&nbsp; All systems normal</span><button id="reset">Reset demo</button></div>
+  <div class="right"><span class="label"><span class="dot"></span>&nbsp; All systems normal</span><div class="seg viewseg" id="viewseg" title="Demo shows the extra controls for judges. Clean shows the product as Fonecta would ship it."><button data-v="demo" class="on">Demo</button><button data-v="clean">Clean</button></div><button id="reset" class="demo-only">Reset demo</button></div>
 </div><div class="prog" id="prog"></div></nav>
 <aside class="rail" id="rail"><a href="#problem" data-s="problem"><b>01</b><span>The problem</span></a><a href="#overview" data-s="overview"><b>02</b><span>Fonecta's view</span></a><a href="#loop" data-s="loop"><b>03</b><span>How it works</span></a><a href="#hood" data-s="hood"><b>04</b><span>Under the hood</span></a><a href="#learning" data-s="learning"><b>05</b><span>Learning</span></a><a href="#next" data-s="next"><b>06</b><span>What's next</span></a></aside>
 
@@ -268,7 +276,15 @@ section{position:relative;overflow:hidden}
       <p>Visor sees wrong holiday hours before your customers do, suggests the fix with a reason, and the owner approves in one tap. No login.</p>
       <div class="cta" style="display:flex;gap:10px"><button class="primary" onclick="go('problem')">Start the tour ↓</button><button onclick="go('loop')">Jump to the live demo</button></div>
     </div>
-    <div class="orbwrap"><div class="orb"></div><div class="orb2"></div><div class="halo"></div><div class="bigmark"><svg width="170" height="170" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" role="img" aria-label="Visor"> <style> .eye{transform-origin:50px 46px;animation:blink 6s ease-in-out infinite} @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}} @media (prefers-reduced-motion:reduce){.eye{animation:none}} </style> <defs><mask id="hlbig"><rect width="100" height="100" fill="#fff"/><circle cx="52.6" cy="43.4" r="2.3" fill="#000"/></mask></defs> <path stroke="currentColor" stroke-width="7" stroke-linejoin="round" d="M50 10 C66 10 79 13 85 18 C87 42 79 71 50 90 C21 71 13 42 15 18 C21 13 34 10 50 10 Z"/> <g class="eye"> <path stroke="currentColor" stroke-width="5" stroke-linejoin="round" d="M29 46 Q50 29 71 46 Q50 63 29 46 Z"/> <circle cx="50" cy="46" r="7.5" fill="currentColor" mask="url(#hlbig)"/> </g> </svg></div></div>
+    <div class="orbwrap"><div class="orb"></div><div class="orb2"></div><div class="halo"></div><div class="bigmark"><svg width="170" height="170" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100" fill="none" role="img" aria-label="Visor"> <style> .eye{transform-origin:50px 46px;animation:blink 6s ease-in-out infinite} @keyframes blink{0%,92%,100%{transform:scaleY(1)}95%{transform:scaleY(.08)}} @media (prefers-reduced-motion:reduce){.eye{animation:none}} 
+/* demo / clean view */
+.viewseg button{height:26px;padding:0 11px;font-size:12px}
+body.clean .demo-only{display:none!important}
+body.clean .chip.start:after{display:none}
+body.clean .chip.start{animation:none;border-color:var(--line2)}
+.viewnote{position:fixed;left:50%;bottom:24px;transform:translate(-50%,20px);background:var(--fg);color:#000;font-size:13px;padding:10px 16px;border-radius:999px;opacity:0;transition:all .3s;z-index:20;pointer-events:none}
+.viewnote.on{opacity:1;transform:translate(-50%,0)}
+</style> <defs><mask id="hlbig"><rect width="100" height="100" fill="#fff"/><circle cx="52.6" cy="43.4" r="2.3" fill="#000"/></mask></defs> <path stroke="currentColor" stroke-width="7" stroke-linejoin="round" d="M50 10 C66 10 79 13 85 18 C87 42 79 71 50 90 C21 71 13 42 15 18 C21 13 34 10 50 10 Z"/> <g class="eye"> <path stroke="currentColor" stroke-width="5" stroke-linejoin="round" d="M29 46 Q50 29 71 46 Q50 63 29 46 Z"/> <circle cx="50" cy="46" r="7.5" fill="currentColor" mask="url(#hlbig)"/> </g> </svg></div></div>
     <div class="claims"><div>Detect · Suggest · Contact</div><div>Decide · Apply</div><div>No login required</div><div>Owner has the final say</div></div>
   </div>
 
@@ -328,11 +344,11 @@ section{position:relative;overflow:hidden}
     <div class="label kicker"><b>03</b> / 06 · How it works</div>
     <h2 style="margin-top:12px">Five steps. The owner only does one.</h2>
     <p class="lead">Pick a business. Visor checks every upcoming holiday, writes the message, and waits for the owner. Tap through it on the phone like they would.</p>
-    <div class="pickhead"><span class="label">Pick a business</span><span class="hint">New here? Start with <b>Kahvila Aurora</b>, then try <b>Pizzeria Torni</b> and <b>Tilitoimisto Otso</b>.</span></div>
+    <div class="pickhead"><span class="label">Pick a business</span><span class="hint demo-only">New here? Start with <b>Kahvila Aurora</b>, then try <b>Pizzeria Torni</b> and <b>Tilitoimisto Otso</b>.</span></div>
     <div class="picker" id="picker"></div>
     <div class="toolbar">
-      <div class="seg" id="langseg"><button data-l="" class="on">Owner's language</button><button data-l="en">English</button></div>
-      <div style="display:flex;gap:8px"><button id="sim" disabled>Let the owner simulator answer</button><button id="open" disabled>Open link ↗</button></div>
+      <div class="seg demo-only" id="langseg"><button data-l="" class="on">Owner's language</button><button data-l="en">English</button></div>
+      <div style="display:flex;gap:8px"><button id="sim" class="demo-only" disabled>Let the owner simulator answer</button><button id="open" disabled>Open link ↗</button></div>
     </div>
     <div class="pipe" id="pipe"></div>
     <div class="stage">
@@ -569,6 +585,25 @@ async function notify(text){
   await sleep(2200); n.classList.remove("open"); await sleep(400);
 }
 loadOverview();
+
+// Demo view shows judge-only controls (reset, simulator, language toggle, start hints). Clean view hides them.
+// Order: ?view=clean|demo in the URL, then this browser's last choice, then DEFAULT_VIEW on the server.
+function setView(v, note){
+  document.body.classList.toggle("clean", v === "clean");
+  $("viewseg").querySelectorAll("button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  try{ localStorage.setItem("visor-view", v); }catch(e){}
+  if(note){ let n = document.querySelector(".viewnote"); if(!n){ n = document.createElement("div"); n.className = "viewnote"; document.body.appendChild(n); }
+    n.textContent = v === "clean" ? "Clean view: the product as Fonecta would ship it" : "Demo view: extra controls for judges";
+    n.classList.add("on"); clearTimeout(n._t); n._t = setTimeout(() => n.classList.remove("on"), 2200); }
+}
+$("viewseg").querySelectorAll("button").forEach(b => b.onclick = () => setView(b.dataset.v, true));
+(async () => {
+  const q = new URLSearchParams(location.search).get("view");
+  let saved = null; try{ saved = localStorage.getItem("visor-view"); }catch(e){}
+  let v = q || saved;
+  if(!v){ try{ v = (await (await fetch("/api/health")).json()).default_view; }catch(e){ v = "demo"; } }
+  setView(v === "clean" ? "clean" : "demo");
+})();
 
 function go(id){ document.getElementById(id).scrollIntoView({behavior:"smooth"}); }
 const SECS = [...document.querySelectorAll("section[id]")];
