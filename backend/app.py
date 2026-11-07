@@ -78,7 +78,7 @@ class SandboxClient(YextClient):
 SANDBOX_KEY = os.environ.get("YEXT_SANDBOX_KEY")
 SANDBOX_ENTITY = os.environ.get("YEXT_SANDBOX_ENTITY_ID")
 SANDBOX_MIRRORS = os.environ.get("SANDBOX_MIRRORS", "FI-D0001")   # which demo business is mirrored to the sandbox
-sbx = SandboxClient(base_url="https://sbx-api.yextapis.com", api_key=SANDBOX_KEY,
+sbx = SandboxClient(base_url=os.environ.get("YEXT_SANDBOX_BASE", "https://sbx-api.yextapis.com"), api_key=SANDBOX_KEY,
                     v=datetime.now().strftime("%Y%m%d")) if SANDBOX_KEY and SANDBOX_ENTITY else None
 
 # ---------------------------------------------------------------- data loaded once
@@ -232,11 +232,58 @@ def apply_hours(eid: str, day: str, hours: str):
     if not HOURS_RE.match(hours):
         raise HTTPException(400, f"Invalid hours {hours!r}")
     yx.set_holiday_hours(eid, day, hours)
-    if sbx and eid == SANDBOX_MIRRORS:
-        sbx.set_holiday_hours(SANDBOX_ENTITY, day, hours)   # the real write path; errors surface to the caller
+    sandbox_write(eid, day, hours)
     live = [l for l in yx.listings([eid])["listings"] if l["status"] == "LIVE"]   # Fonecta: use listings.json
     return [{"publisher": l["publisherName"], "eta": eta(l["typicalUpdateSpeedSeconds"]),
              "seconds": l["typicalUpdateSpeedSeconds"]} for l in sorted(live, key=lambda x: x["typicalUpdateSpeedSeconds"])]
+
+
+# ---------------------------------------------------------------- real Yext sandbox (Fonecta's test business)
+SANDBOX_LOG: list = []      # last writes, newest first: what /api/sandbox and the console show
+
+
+def _sbx_log(kind: str, ok: bool, detail: str):
+    SANDBOX_LOG.insert(0, {"at": now(), "kind": kind, "ok": ok, "detail": detail[:300]})
+    del SANDBOX_LOG[20:]
+
+
+def sandbox_write(eid: str, day: str, hours: str) -> str | None:
+    """Mirror an approved change to the real sandbox. Never breaks the owner's decision if Yext hiccups."""
+    if not (sbx and eid == SANDBOX_MIRRORS):
+        return None
+    try:
+        sbx.set_holiday_hours(SANDBOX_ENTITY, day, hours)
+        _sbx_log("holiday", True, f"{day} → {hours}")
+        return "written"
+    except Exception as e:          # noqa: BLE001
+        _sbx_log("holiday", False, f"{day}: {e}")
+        return "failed"
+
+
+def sandbox_profile():
+    """Fonecta's test business doesn't match the dataset, so make it look like the demo business:
+    same name, regular week and a short description. Holiday hours are cleared so the demo starts clean."""
+    ent = eng.ents[SANDBOX_MIRRORS]
+    week = {d: v for d, v in ent.get("hours", {}).items() if d != "holidayHours"}
+    sbx._req("PUT", f"entities/{SANDBOX_ENTITY}", body={"name": ent["name"], "hours": {**week, "holidayHours": []}})
+    _sbx_log("profile", True, f"renamed to {ent['name']}, regular hours set, holiday hours cleared")
+    try:                            # nice to have; not every Yext setup accepts it
+        sbx._req("PUT", f"entities/{SANDBOX_ENTITY}", body={
+            "description": f"{ent['name']} – demo business for Visor, the Connect Suggests prototype. "
+                           "Holiday hours on this listing are written by Visor after the owner approves."})
+    except Exception:               # noqa: BLE001
+        pass
+
+
+def _sandbox_setup_bg():
+    if sbx and os.environ.get("SANDBOX_SYNC_PROFILE", "1") != "0":
+        try:
+            sandbox_profile()
+        except Exception as e:      # noqa: BLE001
+            _sbx_log("profile", False, str(e))
+
+
+threading.Thread(target=_sandbox_setup_bg, daemon=True).start()
 
 
 # ---------------------------------------------------------------- API
@@ -255,8 +302,27 @@ def sandbox_entity():
     """Read back the sandbox business to prove the write landed (show this in the video)."""
     if not sbx:
         raise HTTPException(400, "Set YEXT_SANDBOX_KEY and YEXT_SANDBOX_ENTITY_ID")
-    e = sbx.get_entity(SANDBOX_ENTITY)
-    return {"id": SANDBOX_ENTITY, "name": e.get("name"), "holidayHours": e.get("hours", {}).get("holidayHours", [])}
+    try:
+        e = sbx.get_entity(SANDBOX_ENTITY)
+    except Exception as ex:         # noqa: BLE001
+        return {"id": SANDBOX_ENTITY, "reachable": False, "error": str(ex)[:300], "log": SANDBOX_LOG}
+    hours = e.get("hours", {})
+    return {"id": SANDBOX_ENTITY, "reachable": True, "name": e.get("name"), "mirrors": SANDBOX_MIRRORS,
+            "regular": {d: v for d, v in hours.items() if d != "holidayHours"},
+            "holidayHours": hours.get("holidayHours", []), "log": SANDBOX_LOG}
+
+
+@app.post("/api/sandbox/setup")
+def sandbox_setup():
+    """Re-apply the demo profile to the sandbox business (name, regular hours, no holiday hours)."""
+    if not sbx:
+        raise HTTPException(400, "Set YEXT_SANDBOX_KEY and YEXT_SANDBOX_ENTITY_ID")
+    try:
+        sandbox_profile()
+    except Exception as e:          # noqa: BLE001
+        _sbx_log("profile", False, str(e))
+        raise HTTPException(502, f"Yext sandbox said: {e}")
+    return sandbox_entity()
 
 
 @app.get("/api/businesses")
@@ -401,11 +467,14 @@ def decide(token: str, body: Decisions):
         else:
             raise HTTPException(400, "action must be approve, edit or decline")
         where = apply_hours(eid, d.date, final) if final else []
+        sb = None
+        if final and sbx and eid == SANDBOX_MIRRORS and SANDBOX_LOG:
+            sb = "written" if SANDBOX_LOG[0]["ok"] else "failed"
         with db() as c:
             c.execute("UPDATE items SET decision=?, final_hours=?, decided_at=?, note=? WHERE token=? AND date=?",
                       (kind, final, now(), (d.note or "")[:280] or None, token, d.date))
             c.execute("INSERT INTO memory VALUES(?,?,?,?,?,?)", (eid, it["day_key"], kind, final, it["suggested"], now()))
-        results.append({"date": d.date, "decision": kind, "hours": final, "visible_on": where})
+        results.append({"date": d.date, "decision": kind, "hours": final, "visible_on": where, "sandbox": sb})
     lang = m["lang"] if m["lang"] in T else "en"
     return {"results": results, "offer_standing_permission": _should_offer_standing(eid),
             "confirmation": T[lang]["done"] if any(r["hours"] for r in results) else None}
@@ -553,6 +622,7 @@ def reset():
     with db() as c:
         for t in ("messages", "items", "memory", "permissions", "human_queue"):
             c.execute(f"DELETE FROM {t}")
+    threading.Thread(target=_sandbox_setup_bg, daemon=True).start()     # sandbox business back to a clean start
     return {"reset": True}
 
 

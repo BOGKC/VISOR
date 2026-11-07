@@ -544,7 +544,8 @@ window.addEventListener("message", e => {
     const r = e.data.results, applied = r.filter(x => x.hours), pubs = (applied[0] || {}).visible_on || [];
     const steps = [...document.querySelectorAll(".step")];
     steps[3].className = "step done"; steps[3].querySelector(".dt").innerHTML = r.map(x => x.decision.toLowerCase()).join(", ");
-    if(applied.length){ steps[4].className = "step done"; steps[4].querySelector(".dt").innerHTML = `apply() ${applied.length} date${applied.length>1?"s":""}<br>Yext · ${pubs.length} publishers`; }
+    if(applied.length){ steps[4].className = "step done"; steps[4].querySelector(".dt").innerHTML = `apply() ${applied.length} date${applied.length>1?"s":""}<br>Yext · ${pubs.length} publishers`
+      + (applied.some(x => x.sandbox === "written") ? `<br>real Yext sandbox ✓` : applied.some(x => x.sandbox === "failed") ? `<br>sandbox retry needed` : ""); }
     loadMemory(); loadOverview();
   }
   if(e.data?.type === "connect-standing") loadMemory();
