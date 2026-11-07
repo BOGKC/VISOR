@@ -129,11 +129,16 @@ h2{font-weight:500;font-size:44px;line-height:1.05;letter-spacing:-.04em;max-wid
 @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(237,237,237,.5)}70%{box-shadow:0 0 0 8px rgba(237,237,237,0)}100%{box-shadow:0 0 0 0 rgba(237,237,237,0)}}
 @keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
 footer .frame{display:flex;justify-content:space-between;align-items:center;padding:28px 48px}
-.ext{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px;margin-top:48px;overflow:hidden}
+.ext{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:12px 12px 0 0;margin-top:48px;overflow:hidden}
 .ext div{padding:24px;border-left:1px solid var(--line)}
 .ext div:first-child{border-left:0}
 .ext b{display:block;font-weight:500;font-size:17px;letter-spacing:-.02em;margin:10px 0 6px}
 .ext p{color:var(--muted);font-size:14px;line-height:1.5}
+.appnext{display:grid;grid-template-columns:2fr 1fr;border:1px solid var(--line);border-top:0;border-radius:0 0 12px 12px;margin-top:-1px;overflow:hidden}
+.appnext>div{padding:24px}
+.appnext .keep{border-left:1px solid var(--line);background:#0a0a0a}
+.appnext b{display:block;font-weight:500;font-size:17px;letter-spacing:-.02em;margin:10px 0 6px}
+.appnext p{color:var(--muted);font-size:14px;line-height:1.5;margin-top:8px}
 </style>
 </head>
 <body>
@@ -205,6 +210,14 @@ footer .frame{display:flex;justify-content:space-between;align-items:center;padd
       <div><span class="label">02</span><b>Holiday posts</b><p>"Closed on Christmas Day" post, ready to publish.</p></div>
       <div><span class="label">03</span><b>Map edits</b><p>Google user says you moved? Confirm or reject in one tap.</p></div>
       <div><span class="label">04</span><b>Event nights</b><p>Arena game next door: suggest staying open later.</p></div>
+    </div>
+    <div class="appnext">
+      <div>
+        <span class="label">05 · Optional Visor app</span>
+        <b>Sign in once with Fonecta. Approve from a notification.</b>
+        <p>For owners who want more: all locations in one place, a history of every change, the auto-pilot switch, and Face ID for bigger changes. New businesses can sign up for Connect straight from the app.</p>
+      </div>
+      <div class="keep"><span class="label">Stays the default</span><p>The no-login text link. Most owners never install another app, so every owner keeps getting Visor without one.</p></div>
     </div>
   </section>
 </div>
