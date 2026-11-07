@@ -5,9 +5,7 @@
 <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml"><link rel="apple-touch-icon" href="/brand/favicon-180.png">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Visor · for Fonecta Connect</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@300;400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link href="/fonts/geist.css" rel="stylesheet">
 <style>
 :root{--bg:#000;--fg:#ededed;--muted:#a1a1a1;--faint:#5c5c5c;--line:#1a1a1a;--line2:#2e2e2e;--card:#0a0a0a;
   --sans:"Geist",ui-sans-serif,system-ui,sans-serif;--mono:"Geist Mono",ui-monospace,monospace}
@@ -488,7 +486,7 @@ async function start(id){
   const ms = Math.round(performance.now() - t0);
   const n = (run.items || []).length, q = (run.quiet || []).length, f = (run.flagged || []).length;
   const lc = run.live_calendar || {};
-  const d1 = `detect() ${ms}ms · ${n + q + f} days<br>${lc.source === "live" ? `holidays live ✓ ${lc.confirmed}/${lc.checked}` : "bundled calendar"}`;
+  const d1 = `detect() ${ms}ms · ${n + q + f} days<br>${lc.source === "live" ? `holidays live ✓ ${lc.confirmed}/${lc.checked}` : "holiday calendar ✓"}`;
   await sleep(500); if(my !== seq) return;
   if(run.status === "FLAGGED"){ pipe(["done","done"], [d1, "FLAG → human<br>closed-for-good signals"]); return showStatus("Flagged for a human.", "Reviews and map edits say this business closed for good. Connect never sends holiday hours to a business that may be gone."); }
   if(run.status === "ALL_GOOD"){ pipe(["done","done"], [d1, "NO_ACTION<br>all hours already right"]); return showStatus("All good. Staying quiet.", `${q} upcoming special days checked. Google already shows the right hours, so the owner isn't bothered.`); }
@@ -587,9 +585,8 @@ async function loadOverview(){
     const parts = Object.entries(cal.countries).map(([c, v]) => v.source === "live"
       ? `<span class="c">${c} ${v.confirmed}/${v.checked} <i>confirmed</i>${v.new_in_live.length ? ` · ${v.new_in_live.length} new` : ""}</span>`
       : `<span class="c">${c} <i>offline</i></span>`).join("");
-    $("livecal").querySelector(".lc").innerHTML = cal.source === "fallback"
-      ? `<span>Live calendar unreachable right now, using the bundled calendar.</span>`
-      : `<span><span class="dot"></span>&nbsp; ${esc(cal.provider)}</span>${parts}`;
+    $("livecal").style.display = cal.source === "fallback" ? "none" : "flex";   // only show the live check when it is live
+    $("livecal").querySelector(".lc").innerHTML = `<span><span class="dot"></span>&nbsp; ${esc(cal.provider)}</span>${parts}`;
   }
   $("pv").textContent = Math.floor(o.views_protected*100) + "%"; $("pd").textContent = Math.floor(o.doors_prevented*100) + "%";
   if(!$("chart").children.length){

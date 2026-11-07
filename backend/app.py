@@ -642,6 +642,17 @@ def decide_page(token: str):
     return FileResponse(os.path.join(STATIC, "m.html"))
 
 
+FONTS = os.path.join(STATIC, "fonts")
+
+
+@app.get("/fonts/{name}")
+def font_file(name: str):
+    path = os.path.join(FONTS, os.path.basename(name))
+    if not os.path.isfile(path):
+        raise HTTPException(404, "Not found")
+    return FileResponse(path, headers={"Cache-Control": "public, max-age=604800"})
+
+
 BRAND = os.path.join(ROOT, "brand")
 
 
