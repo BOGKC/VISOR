@@ -41,6 +41,8 @@ FRONTEND_URL = (os.environ.get("FRONTEND_URL") or os.environ.get("RENDER_EXTERNA
 DB_PATH = os.environ.get("DB_PATH", os.path.join(ROOT, "backend", "connect.db"))
 HOURS_RE = re.compile(r"^(closed|\d{2}:\d{2}-\d{2}:\d{2}(,\d{2}:\d{2}-\d{2}:\d{2})*)$")
 AUTO_APPLY_MIN_CONF = 0.85
+LINK_TTL_DAYS = int(os.environ.get("LINK_TTL_DAYS", "21"))   # a link stops working after this, or after the last date passes
+RATE_LIMIT = int(os.environ.get("RATE_LIMIT_PER_MIN", "60"))   # owner-page requests per IP per minute
 SCHOOL_BREAK = {"fi": "Koululaisten loma", "sv": "Skollov", "nb": "Skoleferie", "en": "School holiday"}
 
 
@@ -110,6 +112,10 @@ def init_db():
         CREATE TABLE IF NOT EXISTS permissions(entity_id TEXT PRIMARY KEY, standing INTEGER, at TEXT);
         CREATE TABLE IF NOT EXISTS human_queue(entity_id TEXT, date TEXT, reason TEXT, at TEXT);
         """)
+        try:
+            c.execute("ALTER TABLE items ADD COLUMN note TEXT")
+        except sqlite3.OperationalError:
+            pass
 
 
 init_db()
@@ -289,7 +295,8 @@ def run(eid: str, lang: str | None = None):
                     msg["sms"], kind))
         for s in shown_items:
             is_auto = s in auto
-            cx.execute("INSERT INTO items VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
+            cx.execute("INSERT INTO items(token,entity_id,date,day_key,day_name,shown,suggested,basis,evidence,confidence,"
+                       "reason,decision,final_hours,decided_at) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)",
                        (token, eid, s["date"].isoformat(), s["day_key"], s["day_name"], s["shown"], s["suggested"],
                         s["basis"], json.dumps(s["evidence"], ensure_ascii=False, default=str), s["confidence"],
                         s.get("reason", ""), "AUTO_APPLIED" if is_auto else None, s["suggested"] if is_auto else None,
@@ -308,22 +315,39 @@ def _item_out(s):
 def get_message(token: str):
     """What the no-login decide page shows."""
     with db() as c:
-        m = c.execute("SELECT * FROM messages WHERE token=?", (token,)).fetchone()
-        if not m:
-            raise HTTPException(404, "This link has expired or doesn't exist")
+        m = load_message(c, token)
         items = [dict(r) for r in c.execute("SELECT * FROM items WHERE token=? ORDER BY date", (token,))]
     ent = eng.ents[m["entity_id"]]
     for it in items:
         it.pop("evidence", None)
     return {"token": token, "entity_id": m["entity_id"], "name": ent["name"], "city": ent["address"]["city"],
             "lang": m["lang"], "subject": m["subject"], "text": m["text"], "kind": m["kind"], "items": items,
-            "standing_permission": has_standing(m["entity_id"])}
+            "standing_permission": has_standing(m["entity_id"]),
+            "expires_at": _expires(m["created_at"])}
+
+
+def _expires(created: str) -> str:
+    from datetime import timedelta
+    return (datetime.fromisoformat(created) + timedelta(days=LINK_TTL_DAYS)).date().isoformat()
+
+
+def load_message(c, token: str):
+    """The link is the key: one business, these dates, valid for LINK_TTL_DAYS and never after the last date."""
+    m = c.execute("SELECT * FROM messages WHERE token=?", (token,)).fetchone()
+    if not m:
+        raise HTTPException(404, "This link has expired or doesn't exist")
+    age = datetime.now(timezone.utc) - datetime.fromisoformat(m["created_at"])
+    last = c.execute("SELECT MAX(date) FROM items WHERE token=?", (token,)).fetchone()[0]
+    if age.days >= LINK_TTL_DAYS or (last and date.fromisoformat(last) < date.today()):
+        raise HTTPException(410, "This link has expired")
+    return m
 
 
 class Decision(BaseModel):
     date: str
     action: str          # approve | edit | decline
     hours: str | None = None
+    note: str | None = None   # optional message from the owner with "suggest other"
 
 
 class Decisions(BaseModel):
@@ -334,9 +358,7 @@ class Decisions(BaseModel):
 def decide(token: str, body: Decisions):
     """Step 4 + 5: owner decides each date; approved/edited hours are written to Yext right away."""
     with db() as c:
-        m = c.execute("SELECT * FROM messages WHERE token=?", (token,)).fetchone()
-        if not m:
-            raise HTTPException(404, "Unknown link")
+        m = load_message(c, token)
         items = {r["date"]: dict(r) for r in c.execute("SELECT * FROM items WHERE token=?", (token,))}
     eid, results = m["entity_id"], []
     for d in body.decisions:
@@ -357,11 +379,13 @@ def decide(token: str, body: Decisions):
             raise HTTPException(400, "action must be approve, edit or decline")
         where = apply_hours(eid, d.date, final) if final else []
         with db() as c:
-            c.execute("UPDATE items SET decision=?, final_hours=?, decided_at=? WHERE token=? AND date=?",
-                      (kind, final, now(), token, d.date))
+            c.execute("UPDATE items SET decision=?, final_hours=?, decided_at=?, note=? WHERE token=? AND date=?",
+                      (kind, final, now(), (d.note or "")[:280] or None, token, d.date))
             c.execute("INSERT INTO memory VALUES(?,?,?,?,?,?)", (eid, it["day_key"], kind, final, it["suggested"], now()))
         results.append({"date": d.date, "decision": kind, "hours": final, "visible_on": where})
-    return {"results": results, "offer_standing_permission": _should_offer_standing(eid)}
+    lang = m["lang"] if m["lang"] in T else "en"
+    return {"results": results, "offer_standing_permission": _should_offer_standing(eid),
+            "confirmation": T[lang]["done"] if any(r["hours"] for r in results) else None}
 
 
 def _should_offer_standing(eid: str) -> bool:
@@ -389,10 +413,8 @@ def simulate(token: str):
     if not SIM_BASE:
         raise HTTPException(400, "Owner simulator only runs against the local mock")
     with db() as c:
-        m = c.execute("SELECT * FROM messages WHERE token=?", (token,)).fetchone()
+        m = load_message(c, token)
         items = [dict(r) for r in c.execute("SELECT * FROM items WHERE token=? AND decision IS NULL", (token,))]
-    if not m:
-        raise HTTPException(404, "Unknown link")
     decisions = []
     for it in items:
         r = owner_response(m["entity_id"], it["date"], it["suggested"], channel=m["channel"], base_url=SIM_BASE)
@@ -403,6 +425,77 @@ def simulate(token: str):
         elif r["decision"] == "REJECTED":
             decisions.append(Decision(date=it["date"], action="decline"))
     return decide(token, Decisions(decisions=decisions)) if decisions else {"results": [], "note": "No reply from owner"}
+
+
+# ---------------------------------------------------------------- guardrails for the public owner links
+_hits: dict = defaultdict(list)
+
+
+@app.middleware("http")
+async def rate_limit(request, call_next):
+    path = request.url.path
+    if path.startswith("/api/m/") or path.startswith("/m/"):
+        ip = request.headers.get("x-forwarded-for", request.client.host if request.client else "?").split(",")[0]
+        t = time.time()
+        _hits[ip] = [x for x in _hits[ip] if t - x < 60] + [t]
+        if len(_hits[ip]) > RATE_LIMIT:
+            from fastapi.responses import JSONResponse
+            return JSONResponse({"detail": "Too many requests, try again in a minute"}, status_code=429)
+    return await call_next(request)
+
+
+# ---------------------------------------------------------------- Fonecta-side overview (the dashboard in the video)
+_OVERVIEW = None
+VIEWS_PROTECTED = 0.643        # share of at-risk search views fixed, measured on the dev split (evaluation/evaluate.py)
+DOORS_PREVENTED = 0.735        # share of closed-door visits prevented, same run
+
+
+def _overview_static():
+    global _OVERVIEW
+    if _OVERVIEW is None:
+        sugg, eids, flagged, per_day = 0, set(), set(), defaultdict(int)
+        with open(os.path.join(ROOT, "predictions_2026.csv"), encoding="utf-8") as f:
+            for r in csv.DictReader(f):
+                if r["action"] == "SUGGEST":
+                    sugg += 1
+                    eids.add(r["entity_id"])
+                    per_day[r["date"]] += 1
+                elif r["action"] == "FLAG":
+                    flagged.add(r["entity_id"])
+        days = [{"date": d, "count": n} for d, n in sorted(per_day.items()) if n >= 200]
+        with open(os.path.join(ROOT, "evaluation", "targets_2026.csv"), encoding="utf-8") as f:
+            watched = {r["entity_id"] for r in csv.DictReader(f) if "-D" not in r["entity_id"]}
+        _OVERVIEW = {"season": "7 Nov – 6 Jan", "businesses": len(watched), "dates_to_fix": sugg,
+                     "owners_to_text": len(eids), "need_a_human": len(flagged),
+                     "views_protected": VIEWS_PROTECTED, "doors_prevented": DOORS_PREVENTED, "days": days}
+    return _OVERVIEW
+
+
+DAY_NAMES = {"NYE": "New Year's Eve", "NEW_YEARS_DAY": "New Year's Day", "XMAS_EVE": "Christmas Eve",
+             "XMAS_DAY": "Christmas Day", "DEC23": "23 December", "INTERDAY": "the days between", "BOXING_DAY": "Boxing Day", "EPIPHANY": "Epiphany"}
+
+
+@app.get("/api/overview")
+def overview():
+    """Season totals from the engine's predictions plus a live feed of what Visor just did."""
+    feed = []
+    with db() as c:
+        for m in c.execute("SELECT m.entity_id, m.created_at, m.kind, COUNT(i.date) n FROM messages m "
+                           "JOIN items i ON i.token=m.token GROUP BY m.token ORDER BY m.created_at DESC LIMIT 8"):
+            what = (f"auto-pilot applied {m['n']} dates" if m["kind"] == "AUTO_APPLIED"
+                    else f"{m['n']} holiday{'s' if m['n'] > 1 else ''} at risk · message sent")
+            feed.append({"at": m["created_at"], "entity_id": m["entity_id"], "text": what})
+        for h in c.execute("SELECT entity_id, MAX(at) at FROM human_queue GROUP BY entity_id ORDER BY at DESC LIMIT 4"):
+            feed.append({"at": h["at"], "entity_id": h["entity_id"], "text": "flagged · signals say closed for good"})
+        for d in c.execute("SELECT entity_id, day_key, kind, hours, at FROM memory ORDER BY at DESC LIMIT 8"):
+            day = DAY_NAMES.get(d["day_key"], d["day_key"].replace("_", " ").title())
+            what = {"APPROVED": f"approved {day}", "EDITED": f"changed {day} to {d['hours']} · remembered",
+                    "DECLINED": f"said no thanks to {day} · won't ask again"}.get(d["kind"], d["kind"].lower())
+            feed.append({"at": d["at"], "entity_id": d["entity_id"], "text": what})
+    feed.sort(key=lambda x: x["at"], reverse=True)
+    for x in feed:
+        x["name"] = eng.ents[x["entity_id"]]["name"] if x["entity_id"] in eng.ents else x["entity_id"]
+    return {**_overview_static(), "feed": feed[:8]}
 
 
 @app.get("/api/memory/{eid}")

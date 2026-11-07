@@ -36,6 +36,7 @@ h1{font-weight:500;font-size:34px;line-height:1.05;letter-spacing:-.035em}
 .new{font-family:var(--mono);font-size:20px;font-weight:500;letter-spacing:-.02em}
 .why{color:var(--muted);font-size:14px;line-height:1.5}
 .actions{display:flex;gap:8px;margin-top:16px}
+.actions button{white-space:nowrap;padding:0 14px}
 button{font-family:var(--sans);font-size:14px;font-weight:500;height:40px;padding:0 16px;border-radius:999px;cursor:pointer;
   border:1px solid var(--line2);background:transparent;color:var(--fg);transition:all .15s;letter-spacing:-.01em}
 button:hover{border-color:#555}
@@ -68,6 +69,7 @@ input[type=time]{flex:1;height:44px;background:#000;border:1px solid var(--line2
 .bar .wrap{display:flex}
 .bar button{flex:1;height:48px;font-size:15px}
 .foot{margin-top:28px;text-align:center}
+.note{width:100%;margin:0 0 14px;background:#0a0a0a;border:1px solid var(--line2,#2e2e2e);border-radius:10px;color:inherit;font:inherit;font-size:14px;padding:10px 12px;resize:none}
 .err{padding:80px 0;text-align:center;color:var(--muted)}
 .skeleton{height:180px;border-radius:12px;border:1px solid var(--line);background:linear-gradient(90deg,#070707,#101010,#070707);background-size:200% 100%;animation:sh 1.2s infinite}
 @keyframes sh{to{background-position:-200% 0}}
@@ -84,6 +86,7 @@ input[type=time]{flex:1;height:44px;background:#000;border:1px solid var(--line2
   <div id="list"><div class="skeleton"></div></div>
   <div id="after"></div>
   <p class="foot label" id="foot"></p>
+  <p class="foot label" id="exp" style="margin-top:8px;color:var(--faint)"></p>
 </div>
 <div class="bar" id="bar" style="display:none"><div class="wrap"><button class="primary" id="all"></button></div></div>
 
@@ -92,47 +95,47 @@ const S = {
   en:{hi:"Hi {name}",sub1:"One holiday may show the wrong hours on Google. Check it and approve in one tap.",
       subN:"{n} holidays may show the wrong hours on Google. Check them and approve in one tap.",
       subAuto:"As you asked, we updated these for you. Change anything that's not right.",
-      shows:"Google shows",sug:"We suggest",approve:"Approve",edit:"Edit",no:"No thanks",save:"Save",cancel:"Cancel",
+      shows:"Google shows",sug:"We suggest",approve:"Approve",edit:"Suggest other",no:"No thanks",save:"Save",cancel:"Cancel",
       closedDay:"Closed all day",closed:"Closed",all:"Approve all ({n})",approved:"Approved · publishing",
       edited:"Saved your hours · publishing",declined:"Skipped · we won't ask about this again",auto:"Updated for you",
       live:"Live",liveTitle:"Your new hours are on their way",liveSub:"Here's where customers will see them:",
       standTitle:"Want us to handle holiday hours automatically?",standSub:"We'll update them for you and always tell you what changed. You can switch this off anytime.",
       yes:"Yes, handle it",notNow:"Not now",standOn:"Done. We'll take care of holiday hours from now on.",
       allDone:"All set. Thanks!",foot:"Visor · Fonecta Connect · you always have the final say",lockless:"No login",
-      expired:"This link has expired or doesn't exist.",bad:"Check the hours: opening and closing time are both needed."},
+      expired:"This link has expired or doesn't exist.",bad:"Check the hours: opening and closing time are both needed.",change:"Change",note:"Add a note (optional)",exp:"Private link for {name} · expires {d} · no password"},
   fi:{hi:"Hei {name}",sub1:"Yhden pyhäpäivän aukioloaika voi näkyä Googlessa väärin. Tarkista ja hyväksy yhdellä napautuksella.",
       subN:"{n} pyhäpäivän aukioloajat voivat näkyä Googlessa väärin. Tarkista ja hyväksy yhdellä napautuksella.",
       subAuto:"Kuten sovittiin, päivitimme nämä puolestasi. Muuta, jos jokin ei täsmää.",
-      shows:"Google näyttää",sug:"Ehdotus",approve:"Hyväksy",edit:"Muokkaa",no:"Ei kiitos",save:"Tallenna",cancel:"Peruuta",
+      shows:"Google näyttää",sug:"Ehdotus",approve:"Hyväksy",edit:"Ehdota muuta",no:"Ei kiitos",save:"Tallenna",cancel:"Peruuta",
       closedDay:"Kiinni koko päivän",closed:"Kiinni",all:"Hyväksy kaikki ({n})",approved:"Hyväksytty · julkaistaan",
       edited:"Aikasi tallennettu · julkaistaan",declined:"Ohitettu · emme kysy tästä uudelleen",auto:"Päivitetty puolestasi",
       live:"Julkaistu",liveTitle:"Uudet aukioloajat ovat matkalla",liveSub:"Asiakkaat näkevät ne täällä:",
       standTitle:"Hoidetaanko pyhäpäivien aukioloajat jatkossa automaattisesti?",standSub:"Päivitämme ne puolestasi ja kerromme aina, mitä muuttui. Voit perua tämän milloin vain.",
       yes:"Kyllä, hoitakaa",notNow:"Ei nyt",standOn:"Selvä. Hoidamme pyhäpäivien aukioloajat tästä eteenpäin.",
       allDone:"Valmista. Kiitos!",foot:"Visor · Fonecta Connect · sinulla on aina viimeinen sana",lockless:"Ei kirjautumista",
-      expired:"Linkki on vanhentunut tai sitä ei ole.",bad:"Tarkista ajat: sekä avaus- että sulkemisaika tarvitaan."},
+      expired:"Linkki on vanhentunut tai sitä ei ole.",bad:"Tarkista ajat: sekä avaus- että sulkemisaika tarvitaan.",change:"Muuta",note:"Lisää viesti (vapaaehtoinen)",exp:"Yksityinen linkki: {name} · vanhenee {d} · ei salasanaa"},
   sv:{hi:"Hej {name}",sub1:"En helgdag kan visa fel öppettider på Google. Kolla och godkänn med ett tryck.",
       subN:"{n} helgdagar kan visa fel öppettider på Google. Kolla och godkänn med ett tryck.",
       subAuto:"Som överenskommet uppdaterade vi dessa åt er. Ändra om något inte stämmer.",
-      shows:"Google visar",sug:"Vi föreslår",approve:"Godkänn",edit:"Ändra",no:"Nej tack",save:"Spara",cancel:"Avbryt",
+      shows:"Google visar",sug:"Vi föreslår",approve:"Godkänn",edit:"Föreslå annat",no:"Nej tack",save:"Spara",cancel:"Avbryt",
       closedDay:"Stängt hela dagen",closed:"Stängt",all:"Godkänn alla ({n})",approved:"Godkänt · publiceras",
       edited:"Era tider sparade · publiceras",declined:"Hoppat över · vi frågar inte igen",auto:"Uppdaterat åt er",
       live:"Live",liveTitle:"Era nya tider är på väg",liveSub:"Här ser kunderna dem:",
       standTitle:"Ska vi sköta helgtiderna automatiskt?",standSub:"Vi uppdaterar dem åt er och berättar alltid vad som ändrats. Ni kan stänga av det när som helst.",
       yes:"Ja, sköt det",notNow:"Inte nu",standOn:"Klart. Vi sköter helgtiderna från och med nu.",
       allDone:"Klart. Tack!",foot:"Visor · Hitta Connect · ni har alltid sista ordet",lockless:"Ingen inloggning",
-      expired:"Länken har gått ut eller finns inte.",bad:"Kolla tiderna: både öppnings- och stängningstid behövs."},
+      expired:"Länken har gått ut eller finns inte.",bad:"Kolla tiderna: både öppnings- och stängningstid behövs.",change:"Ändra",note:"Lägg till en kommentar (valfritt)",exp:"Privat länk för {name} · går ut {d} · inget lösenord"},
   nb:{hi:"Hei {name}",sub1:"En helligdag kan vise feil åpningstider på Google. Sjekk og godkjenn med ett trykk.",
       subN:"{n} helligdager kan vise feil åpningstider på Google. Sjekk og godkjenn med ett trykk.",
       subAuto:"Som avtalt oppdaterte vi disse for dere. Endre hvis noe ikke stemmer.",
-      shows:"Google viser",sug:"Vi foreslår",approve:"Godkjenn",edit:"Endre",no:"Nei takk",save:"Lagre",cancel:"Avbryt",
+      shows:"Google viser",sug:"Vi foreslår",approve:"Godkjenn",edit:"Foreslå annet",no:"Nei takk",save:"Lagre",cancel:"Avbryt",
       closedDay:"Stengt hele dagen",closed:"Stengt",all:"Godkjenn alle ({n})",approved:"Godkjent · publiseres",
       edited:"Tidene lagret · publiseres",declined:"Hoppet over · vi spør ikke igjen",auto:"Oppdatert for dere",
       live:"Live",liveTitle:"De nye tidene er på vei",liveSub:"Her ser kundene dem:",
       standTitle:"Skal vi ordne helligdagstidene automatisk?",standSub:"Vi oppdaterer dem for dere og sier alltid fra om hva som endret seg. Dere kan slå det av når som helst.",
       yes:"Ja, ordne det",notNow:"Ikke nå",standOn:"Ferdig. Vi ordner helligdagstidene fra nå av.",
       allDone:"Alt klart. Takk!",foot:"Visor · Connect · dere har alltid siste ord",lockless:"Ingen innlogging",
-      expired:"Lenken er utløpt eller finnes ikke.",bad:"Sjekk tidene: både åpnings- og stengetid trengs."}
+      expired:"Lenken er utløpt eller finnes ikke.",bad:"Sjekk tidene: både åpnings- og stengetid trengs.",change:"Endre",note:"Legg til en melding (valgfritt)",exp:"Privat lenke for {name} · utløper {d} · ikke passord"}
 };
 const token = location.pathname.split("/").pop();
 const qs = new URLSearchParams(location.search);
@@ -161,7 +164,7 @@ function render(){
   $("foot").textContent = t.foot; $("lockless").textContent = t.lockless;
   $("list").innerHTML = `<div class="items">${data.items.map((it, i) => {
     const showNew = it.final_hours || it.suggested;
-    const canAct = !it.decision || it.decision === "AUTO_APPLIED";
+    const canAct = true;   // the owner can change their mind from the same link until it expires
     return `<div class="item ${it.decision ? "done" : ""}" id="it${i}">
       <div class="top"><div class="day">${esc(it.day_name)}</div><div class="date">${dateLabel(it.date)}</div></div>
       <div class="compare">
@@ -173,12 +176,13 @@ function render(){
       ${stateHtml(it)}
       ${canAct ? `<div class="actions">
         ${it.decision ? "" : `<button class="primary" onclick="act(${i},'approve')">${t.approve}</button>`}
-        <button onclick="openEdit(${i})">${t.edit}</button>
+        <button onclick="openEdit(${i})">${it.decision ? t.change : t.edit}</button>
         ${it.decision ? "" : `<button class="ghost" onclick="act(${i},'decline')">${t.no}</button>`}
       </div>
       <div class="editor" id="ed${i}">
         <div class="times"><input type="time" id="s${i}"><span class="arrow">–</span><input type="time" id="e${i}"></div>
         <label class="toggle"><input type="checkbox" id="c${i}" onchange="closedToggle(${i})">${t.closedDay}</label>
+        <textarea class="note" id="n${i}" rows="2" maxlength="280" placeholder="${t.note}"></textarea>
         <div class="actions" style="margin-top:0"><button class="primary" onclick="saveEdit(${i})">${t.save}</button><button class="ghost" onclick="openEdit(${i},false)">${t.cancel}</button></div>
         <p class="why" id="er${i}" style="margin-top:10px;display:none">${t.bad}</p>
       </div>` : ""}
@@ -202,7 +206,7 @@ function closedToggle(i){ const c = $("c"+i).checked; $("s"+i).disabled = c; $("
 function saveEdit(i){
   const closed = $("c"+i).checked, s = $("s"+i).value, e = $("e"+i).value;
   if(!closed && (!s || !e)){ $("er"+i).style.display = "block"; return; }
-  act(i, "edit", closed ? "closed" : `${s}-${e}`);
+  act(i, "edit", closed ? "closed" : `${s}-${e}`, $("n"+i).value.trim() || undefined);
 }
 
 async function send(decisions){
@@ -219,7 +223,7 @@ async function send(decisions){
   try{ parent.postMessage({type:"connect-decided", results: res.results, offer: res.offer_standing_permission}, "*"); }catch(e){}
 }
 function alertBox(msg){ $("after").insertAdjacentHTML("afterbegin", `<div class="panel"><p class="why">${esc(msg)}</p></div>`); }
-function act(i, action, hours){ send([{date: data.items[i].date, action, hours}]); }
+function act(i, action, hours, note){ send([{date: data.items[i].date, action, hours, note}]); }
 $("all").onclick = () => send(data.items.filter(i => !i.decision).map(i => ({date: i.date, action: "approve"})));
 
 function showLive(pubs){
@@ -249,6 +253,8 @@ function showStanding(){
   t = S[qs.get("lang") || data.lang] || S.en;
   document.documentElement.lang = data.lang;
   render();
+  if(data.expires_at){ const [y, mo, d] = data.expires_at.split("-"); const M = ["Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec"];
+    $("exp").textContent = fmt(t.exp, {name: data.name, d: data.lang === "en" || qs.get("lang") === "en" ? `${+d} ${M[mo-1]}` : (data.lang === "sv" ? `${+d}/${+mo}` : `${+d}.${+mo}.`)}); }
 })();
 </script>
 </body>
