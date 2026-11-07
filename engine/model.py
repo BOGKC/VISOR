@@ -217,7 +217,7 @@ def decide(eng: Engine, fz: Featuriser, models, top, eid, d, key, margin, veto):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--season", type=int, default=2026, choices=[2025, 2026])
-    ap.add_argument("--margin", type=float, default=0.15)
+    ap.add_argument("--margin", type=float, default=0.55)
     ap.add_argument("--veto", type=float, default=0.25)
     ap.add_argument("--folds", type=int, default=5)
     a = ap.parse_args()

@@ -9,3 +9,4 @@ node_modules/
 .next/
 .vercel/
 !.env.example
+engine/decisions_*.csv

@@ -538,8 +538,8 @@ async def rate_limit(request, call_next):
 
 # ---------------------------------------------------------------- Fonecta-side overview (the dashboard in the video)
 _OVERVIEW = None
-VIEWS_PROTECTED = 0.643        # share of at-risk search views fixed, measured on the dev split (evaluation/evaluate.py)
-DOORS_PREVENTED = 0.735        # share of closed-door visits prevented, same run
+VIEWS_PROTECTED = 0.663        # share of at-risk search views fixed, measured on the dev split (evaluation/evaluate.py)
+DOORS_PREVENTED = 0.769        # share of closed-door visits prevented, same run
 
 
 def _overview_static():

@@ -302,7 +302,7 @@ body.clean .chip.start{animation:none;border-color:var(--line2)}
 
   <div class="stats">
     <div class="stat"><b>3,000</b><span class="label">Businesses watched</span></div>
-    <div class="stat"><b>60.7</b><span class="label">Engine score (dev)</span></div>
+    <div class="stat"><b>62.6</b><span class="label">Engine score (dev)</span></div>
     <div class="stat"><b>0</b><span class="label">Logins needed</span></div>
     <div class="stat"><b>4</b><span class="label">Languages</span></div>
     <div class="stat"><b>~2 min</b><span class="label">Live on Google</span></div>
@@ -407,10 +407,10 @@ body.clean .chip.start{animation:none;border-color:var(--line2)}
       <div class="card"><div class="label"><span>Suggestion quality</span><span>hidden-test scorer, dev split</span></div>
         <div class="bars">
           <div class="bar base"><div class="t"><span>Fonecta baseline</span><span>54.5</span></div><div class="tr"><div class="fi" data-w="54.5"></div></div></div>
-          <div class="bar"><div class="t"><span>Visor engine</span><span>60.7</span></div><div class="tr"><div class="fi" data-w="60.7"></div></div></div>
+          <div class="bar"><div class="t"><span>Visor engine</span><span>62.6</span></div><div class="tr"><div class="fi" data-w="62.6"></div></div></div>
         </div>
-        <div class="proof"><div><b id="pv">64%</b><span>at-risk search views protected</span></div><div><b id="pd">73%</b><span>closed-door visits prevented</span></div></div>
-        <p class="lead" style="font-size:14px;margin-top:20px">Own history first, then the shopping centre, then what similar businesses actually did, measured against each owner's own hours. When the evidence is weak, it stays quiet.</p>
+        <div class="proof"><div><b id="pv">66%</b><span>at-risk search views protected</span></div><div><b id="pd">77%</b><span>closed-door visits prevented</span></div></div>
+        <p class="lead" style="font-size:14px;margin-top:20px">Own history first, then the shopping centre, then what similar businesses actually did, measured against each owner's own hours. A learned model fills the gaps and vetoes weak rules. When the evidence is weak, it stays quiet.</p>
       </div>
       <div class="card"><div class="label"><span>Guardrails</span></div>
         <p class="lead" style="font-size:14px;margin-top:16px">Closed for good? Flagged to a human, never messaged. Opted out? Nothing sent. Already right? Silence. Standing permission only auto-applies high-confidence changes, and every edit is validated before it reaches Yext.</p>
@@ -579,7 +579,7 @@ async function loadOverview(){
   const o = await (await fetch("/api/overview")).json();
   $("season").textContent = `Holiday season · ${o.season}`;
   $("kpis").innerHTML = [[nfmt(o.businesses),"Businesses"],[nfmt(o.dates_to_fix),"Dates to fix"],[nfmt(o.owners_to_text),"Owners to text"],
-    [o.need_a_human,"Need a human"],[Math.floor(o.views_protected*100)+"%","Views protected"]].map(([v,l]) => `<div class="kpi"><b>${v}</b><span class="label">${l}</span></div>`).join("");
+    [o.need_a_human,"Need a human"],[Math.round(o.views_protected*100)+"%","Views protected"]].map(([v,l]) => `<div class="kpi"><b>${v}</b><span class="label">${l}</span></div>`).join("");
   const cal = o.calendar;
   if(cal){
     const parts = Object.entries(cal.countries).map(([c, v]) => v.source === "live"
@@ -588,7 +588,7 @@ async function loadOverview(){
     $("livecal").style.display = cal.source === "fallback" ? "none" : "flex";   // only show the live check when it is live
     $("livecal").querySelector(".lc").innerHTML = `<span><span class="dot"></span>&nbsp; ${esc(cal.provider)}</span>${parts}`;
   }
-  $("pv").textContent = Math.floor(o.views_protected*100) + "%"; $("pd").textContent = Math.floor(o.doors_prevented*100) + "%";
+  $("pv").textContent = Math.round(o.views_protected*100) + "%"; $("pd").textContent = Math.round(o.doors_prevented*100) + "%";
   if(!$("chart").children.length){
     const max = Math.max(...o.days.map(d => d.count));
     $("chart").innerHTML = o.days.map(d => `<div class="col ${d.count > max*0.45 ? "peak" : ""}"><span class="v">${nfmt(d.count)}</span><div class="b" data-h="${Math.max(3, d.count/max*100)}"></div><span class="x">${dlabel(d.date)}</span></div>`).join("");

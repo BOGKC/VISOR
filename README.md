@@ -10,7 +10,7 @@ The name comes from *advisor*, and a visor is a shield: it takes the hit before 
 |---|---|
 | **Live app** | https://visor-56r7.onrender.com (free Render plan: the first load after a quiet spell takes up to a minute) |
 | **Demo video** | 2:17. A real screen recording of the app, with narration and English subtitles |
-| **Score** | 60.7 on Fonecta's scorer, dev split 2026. Fonecta's baseline scores 54.5 |
+| **Score** | **62.6** on Fonecta's scorer, dev split 2026 (baseline 54.5), and **58.0** on the 2025 back-test (baseline 53.2) |
 | **Yext sandbox** | Verified live: approved hours are written to Fonecta's sandbox (entity `SinceAI11`) and read back |
 | **Live data source** | Nager.Date public-holiday API, cross-checked against the season calendar |
 
@@ -25,7 +25,7 @@ uvicorn backend.app:app --port 8000        # open http://localhost:8000
 
 - **Console** (`/`): Fonecta's view and the demo. Pick a business and watch the five steps run, with the owner's phone on the right.
 - **Owner page** (`/m/{token}`): the no-login page the text message links to.
-- **Engine:** `python engine/engine.py` rewrites `predictions_2026.csv`. Check it with `python evaluation/evaluate.py --predictions predictions_2026.csv`.
+- **Engine:** `pip install scikit-learn numpy`, then `python engine/model.py` (about 10 minutes) rewrites `predictions_2026.csv`. Check it with `python evaluation/evaluate.py --predictions predictions_2026.csv`. Add `--season 2025` for the honest back-test, which writes `outputs/predictions_2025_v2.csv`. `python engine/engine.py` runs the rules layer alone.
 - **Settings:** optional, all in `.env.example`.
   - `YEXT_SANDBOX_KEY` and `YEXT_SANDBOX_ENTITY_ID` turn on writes to the real Yext sandbox. They go in `.env` locally or in Render's environment settings, never in the repo.
   - `DEFAULT_VIEW=clean` hides the judge-only controls.
@@ -38,7 +38,7 @@ uvicorn backend.app:app --port 8000        # open http://localhost:8000
 | Step | What happens | Where in the code |
 |---|---|---|
 | **1 · Detect** | Every upcoming special day is checked against what Google will show (regular hours plus any holiday hours in Yext). The season's public holidays are cross-checked live with Nager.Date. | `backend/app.py` `detect()`, `engine/engine.py`, `backend/live_holidays.py` |
-| **2 · Suggest** | The engine picks the hours with a one-line reason: the owner's own last year, then two years ago, then the shopping centre's hours, then what similar businesses actually did (relative to this owner's regular hours). If evidence is weak it stays quiet. Closed-for-good signals are flagged to a human instead. | `engine/engine.py` `Engine.explain()` |
+| **2 · Suggest** | **Rules first:** the owner's own last year, then two years ago, then the shopping centre's hours, then what similar businesses actually did (relative to this owner's regular hours). Each rule comes with a one-line reason. **Then a learned model** (gradient boosting, trained only on other businesses' history) fills the dates the rules can't cover, choosing the hours with the best expected score. It also vetoes a rule it's confident gets open/closed wrong. If evidence is weak, Visor stays quiet. Closed-for-good signals are flagged to a human instead. | `engine/engine.py` `Engine.explain()`, `engine/model.py` |
 | **3 · Contact** | One message per owner covering all dates, on their preferred channel (SMS, email, WhatsApp or app push, as stored in Connect) and in their language (fi, sv, nb, en), with a private link. Owners who opted out get nothing. | `backend/messages.py`, `POST /api/run/{entity_id}` |
 | **4 · Decide (no login)** | The link opens a phone page: **Approve**, **Suggest other** (own hours plus an optional note) or **No thanks**, per date or all at once. The owner can change their mind from the same link until it expires. | `backend/static/m.html`, `POST /api/m/{token}/decide` |
 | **5 · Apply + confirm** | Approved or edited hours are written to Yext right away (and mirrored to the real sandbox). The owner sees where they'll appear and how fast: Google ~2 min, Finder.fi ~10 min, Bing ~1 day, Apple Maps ~2 days… | `backend/app.py` `apply_hours()`, `sandbox_write()` |
@@ -59,16 +59,21 @@ These live in `memory` and `permissions` in `backend/app.py`.
 
 ## Suggestion quality
 
-| Fonecta's scorer (`evaluation/evaluate.py`) | Fonecta baseline | **Visor engine** |
-|---|---|---|
-| Dev split 2026, score 0–100 | 54.5 | **60.7** |
-| Exact-match precision / recall | 0.901 / 0.590 | 0.875 / **0.666** |
-| At-risk search views protected | 57.2 % | **64.3 %** |
-| Closed-door visits prevented | 69.2 % | **73.5 %** |
-| Harmful (wrong open/closed) suggestions | **224** | 284 |
-| 2025 back-test (only data before 6 Nov 2025) | **53.2** | 52.3 |
+| Fonecta's scorer (`evaluation/evaluate.py`) | Fonecta baseline | Visor v1 (rules only) | **Visor v2 (submitted)** |
+|---|---|---|---|
+| **Dev split 2026, score 0–100** | 54.5 | 60.7 | **62.6** |
+| **2025 back-test** (only data before 6 Nov 2025) | 53.2 | 52.3 | **58.0** |
+| Exact-match precision / recall (2026) | 0.901 / 0.590 | 0.875 / 0.666 | 0.873 / **0.683** |
+| At-risk search views protected (2026) | 57.2 % | 64.3 % | **66.3 %** |
+| Closed-door visits prevented (2026) | 69.2 % | 73.5 % | **76.9 %** |
+| Harmful (wrong open/closed) suggestions (2026) | **224** | 284 | 249 |
 
-`predictions_2026.csv` in the repo root is the engine's output for every target row.
+`predictions_2026.csv` in the repo root is v2's output for every target row (dev and test).
+
+**How v2 stays honest:**
+- The model is trained only on truth history from *before* the snapshot date.
+- Each dev business is predicted by a model that never saw its own history (grouped 5-fold cross-validation).
+- The two safety settings were chosen to work in *both* seasons, not tuned to one. `--margin 0.55` is how much better than doing nothing a model-only suggestion must score. `--veto 0.25` is how confident the model must be to block a rule.
 
 ## Data sources that mattered most
 
@@ -84,10 +89,11 @@ Reviews and Google user suggestions are used only for the closed-for-good guardr
 
 ## What we tried that didn't work
 
-- **The 2025 back-test is slightly below the baseline (52.3 vs 53.2).** The peer priors need history, and in the 2025 back-test they only have one earlier season to learn from. The gain shows up on 2026, where there's more history.
-- **More recall costs some precision.** Visor makes more suggestions than the baseline, so it fixes more dates (recall 0.666 vs 0.590) but also makes more wrong open/closed calls (284 vs 224). The guardrails (flagging, owner approval, the confidence threshold for auto-pilot) exist because of this.
-- **Engine v2 (`engine/model.py`):** a gradient-boosted model with grouped cross-validation. A run was interrupted and never scored in time, so v1 is submitted and v2 is not used.
+- **Rules alone were below the baseline on the 2025 back-test (52.3 vs 53.2).** The peer priors need history, and in 2025 they only had one earlier season to learn from. The learned model fixed this (58.0).
+- **Simply lowering the rule thresholds made it worse.** Suggesting "closed" when 55–70 % of similar businesses were closed raised harmful suggestions from 284 to over 400 and lowered both scores. Peers alone aren't reliable enough for that.
+- **v2 with its first settings nearly doubled the harmful suggestions (489).** It scored 62.1, but at that rate too many wrong suggestions would reach real owners. Raising the bar for model-only suggestions (margin 0.15 → 0.55) kept the score (62.6) and brought harmful suggestions *below* v1 (249).
 - **Not specifically modelled yet:** event nights (bars near big events opening later) and school breaks for family venues. Both are in the data, but there was no time to validate them.
+- **The live app's explanations come from the rules layer.** The batch model adds a few extra dates in `predictions_2026.csv` (for example New Year's Day for Kahvila Kipinä) that the live demo doesn't text yet. Wiring the model's suggestions into the messages, with their own wording, is the next step.
 - **The Yext sandbox has no exception-hour history and no reviews for the test business,** so detection runs on Fonecta's dataset and the sandbox is used for the write path, as Fonecta recommends.
 
 ## Customer with no history (`FI-D0017` Kahvila Kipinä)
@@ -96,7 +102,7 @@ No past holiday entries and no shopping centre, so the engine falls back to what
 - same country, city size and segment, measured relative to Kipinä's own regular hours;
 - only with at least 8 peers and a clear majority (≥ 80 % closed, or ≥ 75 % sharing the same open pattern).
 
-For Kipinä that gives **one** suggestion, Christmas Day closed (confidence 0.89). Every other day stays quiet because the evidence isn't strong enough. The message says why: *"Most businesses like yours nearby are closed that day."* Once the owner answers, their answer is used from then on instead of the peers.
+In the live app, Kipinä gets **one** suggestion, Christmas Day closed (confidence 0.89). The learned model, which also only learns from *other* businesses, adds **New Year's Day closed** (0.77) in `predictions_2026.csv`. Every other day stays quiet because the evidence isn't strong enough. The message says why: *"Most businesses like yours nearby are closed that day."* Once the owner answers, their answer is used from then on instead of the peers.
 
 ## Final customer messages (as text)
 
@@ -283,7 +289,8 @@ Confirmation text returned with the decision: *"Done! Your new hours are being p
 | Challenge data: `data/`, `labels/`, `evaluation/*.csv` | CC BY 4.0, "Connect Suggests simulator, Since AI ry 2026" |
 | Nager.Date public-holiday API (called at runtime, no code included) | MIT; free public API |
 | Demo video only (not part of the app or this repo): Remotion · Kokoro TTS model + kokoro-onnx · ffmpeg | Remotion License (free for individuals) · Apache-2.0 / MIT · used as a command-line tool, not shipped |
+| scikit-learn, NumPy, SciPy, joblib, threadpoolctl (engine v2, offline batch run only, not needed by the web app) | BSD-3-Clause |
 
-No GPL or AGPL components are included in the app. Engine v2 (`engine/model.py`, not used in the submission) would need scikit-learn and NumPy (both BSD-3-Clause).
+No GPL or AGPL components are included.
 
 Synthetic data only. The Yext sandbox key lives only in the deployment's environment settings, never in this repository or the video.
